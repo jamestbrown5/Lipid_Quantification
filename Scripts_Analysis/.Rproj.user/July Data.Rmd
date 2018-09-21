@@ -1,0 +1,78 @@
+---
+title: "July Data"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+## loading libraies
+```{r}
+library(tidyr)
+library(ggplot2)
+library(plyr)
+library(MASS)
+```
+## Reading in the data and looking at its structure.
+```{r}
+data=read.csv("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/Data/Lipids/USDA BUP/20171102 July Samples RAW data.csv", header = T)
+str(data)
+```
+
+## plotting out relevant data
+there is a problem because the data is in column format. Especially for ggplot so we need to convert the trait data into columns and make it into 2 columns. 1 with trait ID and the other with trait measurements. this aloows us to call on the trait id column to plot.
+
+Goal: plot larval data against season
+```{r}
+#converting witde to long
+dat.long<-gather(data,traits,measurement,WET.Larva:Lipid.Wt)
+
+## here are the plots
+## all the traits against colony info and season as boxplot
+
+ggplot(dat.long,aes(x=Season,y=measurement,colour=Colony.Info))+geom_boxplot()+facet_grid(traits~.,scales="free")
+
+## all traits against cohort color coded by block with points
+ggplot(dat.long,aes(x=Cohort,y=measurement,colour=factor(Block)))+geom_point()+facet_grid(traits~.,scales="free")
+
+#subsetting out extreme sample lines in wet larvae 
+subset(data,WET.Larva>0.6)
+
+## removing data lines via subset
+sub.out=subset(data,WET.Larva<0.6)
+## or 
+sub.out1=data[-95,]
+dim(sub.out)
+````
+
+##Exploring the stats using ANOVA
+````{r}
+###making blocks as a factor
+data$Block=as.factor(data$Block)
+
+##constructing an aov model
+mod1=aov(Lipid.Wt~Season*Colony.Info+Block+LEAN.Larvae,data=data)
+summary(mod1)
+`````
+##Exploring the Stats using AIC
+`````{r}
+## checking model visualy
+plot(mod1)
+
+mod2=stepAIC(mod1, direction="both")
+summary(mod2)
+````
+###Calculating the means. Visualized using boxplots and point plots 
+````{r}
+mean.dat=ddply(data,.(Season,Colony.Info),summarize,mean=mean(Lipid.Wt))
+ggplot(data,aes(x=Season,y=Lipid.Wt,colour=Colony.Info))+geom_boxplot()+geom_line(data=mean.dat,aes(x=as.numeric(Season),y=mean,colour=Colony.Info))
+
+ggplot(data,aes(x=Season,y=Lipid.Wt,colour=Colony.Info))+geom_point()+geom_line(data=mean.dat,aes(x=as.numeric(Season),y=mean,colour=Colony.Info))
+
+data$resid<-scale(resid(aov(Lipid.Wt~Block+LEAN.Larvae,data=data)))
+mean.dat2<-ddply(data,.(Season,Colony.Info),summarize,mean=mean(resid),sd=sd(resid))
+
+#ggplot(data,aes(x=Season,y=resid,colour=Colony.Info))+geom_boxplot()#+geom_line(data=mean.dat,aes(x=as.numeric(Season),y=mean,colour=Colony.Info))
+
+ggplot(mean.dat2,aes(x=Season,y=mean,colour=Colony.Info,group=Colony.Info))+geom_line(position="identity",size=2)+geom_errorbar(aes(ymin=mean-sd,ymax=mean+sd),width=.35,size=2)+geom_point(size=10)+ylab("Standardized Residuals of Lipid Weight")
+`````
+

@@ -1,0 +1,28 @@
+
+```{r}
+test<-loess(mass~day,data=data)
+predict(test)
+
+
+BE12<-data %>%
+  filter(strain=="BE" & treat =="1" & stage=="L")
+besd=loess(mass~day,data=BE12)
+
+BE16<-data %>%
+  filter(strain=="BE" & treat =="2" & stage=="L")
+beld=loess(mass~day,data=BE16)
+
+UZ12<-data %>%
+  filter(strain=="UZ" & treat =="1" & stage=="L")
+uzsd=loess(mass~day,data=UZ12)
+
+UZ16<-data %>%
+  filter(strain=="UZ" & treat =="2" & stage=="L")
+uzld=loess(mass~day,data=UZ16)
+
+plot(besd)
+plot(beld)
+plot(uzsd)
+plot(uzld)
+
+```

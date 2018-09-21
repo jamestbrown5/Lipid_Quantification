@@ -1,0 +1,113 @@
+---
+title: "Visualizing August Lipid Data"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+chunk_output_type: inline
+---
+
+## loading libraies
+```{r}
+library(readxl)
+library(ggplot2)
+library(nlme)
+library(lme4)
+library(lmerTest)
+library(ez)
+library(lsr)
+library(dplyr)
+library(tidyr)
+library(googleVis)
+library(MASS)
+library(doBy)
+library(plyr)
+
+##PC##
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "2017AUG")
+
+## reading in the data and looking at its structure
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "2017AUG")
+
+##This code breaks apart the data in the column "treat" into "strain" and "photoperiod"
+data$strain<-substr(data$treat,1,2)
+data$photoperiod<-as.numeric(substr(data$treat,3,4))
+data$photoperiod<-as.factor(as.character(data$photoperiod))
+data$strain<-as.factor(as.character(data$strain))
+data$treat<-as.factor(as.character(data$treat))
+str(data)
+
+##Exclude NAs from the data set
+data<-na.omit(data)
+data=subset(data,wet_mass>=0.0001)
+data=subset(data,dry_mass>=0.0001)
+data=subset(data,lean_mass>=0.0001)
+data=subset(data,lipid_mass>=0.0001)
+
+#converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
+data2=data
+data2=gather(data,traits,measurement,wet_mass:lipid_mass)
+str(data2) #shows the structure of the data
+```
+
+#Making models and selecting models
+```{r}
+## Intrx between strain and photoperiod model used to check for significance.
+mm1=aov(lipid_mass~photoperiod*strain+lean_mass+wet_mass+Rep, data)
+summary(mm1)
+plot(mm1)
+
+mod1=stepAIC(mm1, direction="both")
+summary(mod1)
+
+##The following model removes strain and photoperiod as factors to determine the effect of lean mass and  on lipid mass
+submod<-aov(lipid_mass~lean_mass,data=data)
+
+##Adding standardized residuals data to data set
+data2$stdresd<-as.vector(scale(resid(submod)))
+````
+
+##Mixed model with Analysis Block as a random factor
+````{r}
+mixed1=lmer(lipid_mass ~ photoperiod*strain+lean_mass+(1|Rep),data=data, REML = TRUE)
+summary(mixed1)
+plot(mixed1)
+
+mixed2 = lmer(lipid_mass ~ photoperiod+strain+(1|Rep),data=data, REML = TRUE)
+anova(mixed2)
+summary(mixed2)
+plot(mixed2)
+````
+
+##Plotting the lipid mass residuals for each strain by photoperiod
+````{r}
+ggplot(data2,aes(x=strain,y=stdresd, color=photoperiod))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("August Cohort: Within Strain Effect")+
+  ylab("Lipid Mass")
+  
+##Strain effect by std residuals of lipid mass
+ggplot(data2,aes(x=strain,y=stdresd, color=strain))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("August Cohort: Pooled Effect of Strain")+ylab("Lipid Mass")
+
+ggplot(data2,aes(x=photoperiod,y=stdresd, color=photoperiod))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("August Cohort: Pooled Effect of Photoperiod")+ylab("Lipid Mass")
+
+##Photoperiod effect by std residuals of lipid mass
+ggplot(data2,aes(x=photoperiod,y=stdresd,color=strain))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("August Cohort: Between Strain Effect")+ylab("Lipid Mass")
+
+## The response of each trait within each treatment (read:strain and photoperiod)
+ggplot(data2,aes(x=treat,y=measurement,color=traits))+
+  theme_classic()+
+  geom_boxplot()+
+  ggtitle("August Trait Measurements")+
+  ylab("Lipid Mass")
+```

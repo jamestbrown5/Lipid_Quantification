@@ -1,0 +1,227 @@
+---
+title: "Press BE"
+editor_options: null
+output: html_document
+df_print: paged
+chunk_output_type: console
+---
+### Goal: Rear UZ and BE at 23C at 16:8 and 12:12 L:D regimens (UZ12, UZ16, BE12, BE16). Track CO2 production as a function of number of days after molting into the 5th instar. Track average weight gain as a function of number of days after molting into the 5th instar. Compare CO2 production and weight gain within strain and between L:D then compare L:D between strains 
+
+##Call Data
+````{r}
+library(readxl)
+library(ggplot2)
+library(nlme)
+library(lme4)
+library(lmerTest)
+library(ez)
+library(lsr)
+library(dplyr)
+library(tidyr)
+library(googleVis)
+library(MASS)
+library(doBy)
+library(plyr)
+
+
+##PC
+#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+
+
+##MAC
+## reading in the data and looking at its structure
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+
+str(data)
+data=subset(data,treat!="NA")
+data=subset(data,cohort!="20180131")
+data=subset(data,cohort!="20180206")
+#data=subset(data,sample_day!="W14")
+#data=subset(data,sample_day!="W19")
+#data=subset(data,sample_day!="W29")
+
+
+##This code breaks apart the data in the column "treat" into "strain" and "photoperiod"
+data$strain<-substr(data$treat,1,2)
+data$photoperiod<-as.numeric(substr(data$treat,3,4))
+data$strain<-as.factor(as.character(data$strain))
+data$photoperiod<-as.factor(as.character(data$photoperiod))
+data$treat<-as.factor(as.character(data$treat))
+data$sample_day<-factor(data$sample_day, levels=c("1" , "3" , "7" , "W" , "pW1" , "pW5" , "pW10" , "W14" ,"W15" , "pW18" , "W19" , "W20" , "W29" , "W30" , "pW38" , "W45"))
+data$cohort<-as.factor(as.character(data$cohort))
+
+#Reducing df
+data1=data[1:626, c("sample_day", "treat","sample_id","5th_date","cohort", "wet_mass","dry_mass","lean_mass","lipid_mass")]
+
+#converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
+dataT=gather(data,traits,measurement,wet_mass:lipid_mass)
+str(dataT) #shows the structure of the data
+````
+
+````{r}
+#Larva Trait Plot
+dataTr=dataT
+dataTr=subset(dataTr,measurement!="NA")
+dataTr=subset(dataTr,photoperiod!="NA")
+count(dataTr$treat)
+dataTr=subset(dataTr,sample_day=="1" | sample_day=="3" | sample_day=="7" | sample_day=="W" | sample_day=="pW1" | sample_day=="pW5" | sample_day=="pW10" | sample_day=="W14" |sample_day=="W15" | sample_day=="pW18" | sample_day=="W19" | sample_day=="W20" | sample_day=="W29" | sample_day=="W30" | sample_day=="pW38" | sample_day=="W45")
+dataTr=subset(dataTr,measurement>=0.0001)
+dataTr=subset(dataTr,measurement<=0.1100)
+ggplot(data=dataTr,aes(x=sample_day,y=measurement,fill=traits))+
+  geom_boxplot()+
+  facet_wrap(~treat)+
+  theme_classic()+
+  ggtitle("Larvae Traits")+
+  ylab("Traits")+xlab("Sample Day")
+
+#Larva Wet Mass Plot
+dataW=data1
+dataW=subset(dataW,wet_mass>=0.0001)
+dataW=subset(dataW,wet_mass<=0.1000)
+count(dataW$treat)
+dataW=subset(dataW,sample_day=="1" | sample_day=="3" | sample_day=="7" | sample_day=="W" | sample_day=="pW1" | sample_day=="pW5" | sample_day=="pW10" | sample_day=="W14" |sample_day=="W15" | sample_day=="pW18" | sample_day=="W19" | sample_day=="W20" | sample_day=="W29" | sample_day=="W30" | sample_day=="pW38" | sample_day=="W45")
+ggplot(data=dataW,aes(x=sample_day,y=wet_mass,fill=treat))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("Larvae Wet Mass (UZ 111 larvae : BE 141 larvae)")+
+  ylab("Wet Mass")+xlab("Sample Day")
+
+#Larva Dry Mass Plot
+dataD=data1
+dataD=subset(dataD,dry_mass>=0.0001)
+dataD=subset(dataD,dry_mass<=0.1000)
+count(dataD$treat)
+dataD=subset(dataD,sample_day=="1" | sample_day=="3" | sample_day=="7" | sample_day=="W" | sample_day=="pW1" | sample_day=="pW5" | sample_day=="pW10" | sample_day=="W14" |sample_day=="W15" | sample_day=="pW18" | sample_day=="W19" | sample_day=="W20" | sample_day=="W29" | sample_day=="W30" | sample_day=="pW38" | sample_day=="W45")
+ggplot(data=dataD,aes(x=sample_day,y=dry_mass,fill=treat))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("Larvae Dry Mass (UZ 194 larvae : BE 132 lavae)")+
+  ylab("Dry Mass")+xlab("Sample Day")
+
+#Larva Lean Mass Plot
+dataL=data1
+dataL=subset(dataL,lean_mass>=0.0001)
+dataL=subset(dataL,lean_mass<=0.1000)
+count(dataL$treat)
+dataL=subset(dataL,sample_day=="1" | sample_day=="3" | sample_day=="7" | sample_day=="W" | sample_day=="pW1" | sample_day=="pW5" | sample_day=="pW10" | sample_day=="W14" |sample_day=="W15" | sample_day=="pW18" | sample_day=="W19" | sample_day=="W20" | sample_day=="W29" | sample_day=="W30" | sample_day=="pW38" | sample_day=="W45")
+ggplot(data=dataL,aes(x=sample_day,y=lean_mass,fill=treat))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("Larvae lean Mass (UZ 71 : BE 61 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day")
+ 
+#Larva Lipid Mass Plot
+dataLi=data1
+dataLi=subset(dataLi,lipid_mass>=0.0001)
+dataLi=subset(dataLi,lipid_mass<=0.1000)
+count(dataLi$treat)
+dataLi=subset(dataLi,sample_day=="1" | sample_day=="3" | sample_day=="7" | sample_day=="W" | sample_day=="pW1" | sample_day=="pW5" | sample_day=="pW10" | sample_day=="W14" |sample_day=="W15" | sample_day=="pW18" | sample_day=="W19" | sample_day=="W20" | sample_day=="W29" | sample_day=="W30" | sample_day=="pW38" | sample_day=="W45")
+ggplot(data=dataLi,aes(x=sample_day,y=lipid_mass,fill=treat))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("Larvae Lipid Mass (UZ 133: BE 121)")+
+  ylab("Lipid Mass")+xlab("Sample Day")
+`````
+
+````{r}
+##Mixed model including random factor, rep
+dataUZ=subset(data,strain!="BE")
+dataUZ=subset(dataUZ,lipid_mass>="0")
+dataUZ=subset(dataUZ,lipid_mass<="0.03")
+dataUZ=subset(dataUZ,lipid_mass!="NA")
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+mixedUZ=lmer(lipid_mass ~ photoperiod+sample_day+(1|rep),data=dataUZ, REML = TRUE)
+#AICUZ=AIC(mixedUZ)
+#summary(AICUZ)
+summary(mixedUZ)
+plot(mixedUZ)
+
+## Standard Residuals
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lipid mass
+submod=lmer(lipid_mass ~ sample_day+(1|rep),data=dataUZ, REML = TRUE)
+summary(submod)
+
+##Adding standardized residuals data to data set
+dataUZ$stdresd<-as.vector(scale(resid(submod)))
+dataUZ=subset(dataUZ,stdresd<="0.7")
+
+ggplot(dataUZ,aes(x=photoperiod,y=stdresd, color=sample_day))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("UZ Strain: Within Strain Effect of Photoperiod ")+
+  ylab("Lipid Mass")
+
+
+######################################################
+
+dataBE=subset(data,strain!="UZ")
+dataBE=subset(dataBE,lipid_mass>="0")
+dataBE=subset(dataBE,lipid_mass<="0.02")
+dataBE=subset(dataBE,lipid_mass!="NA")
+mixedBE=lmer(lipid_mass ~ photoperiod+sample_day+(1|rep),data=dataBE, REML = TRUE)
+summary(mixedBE)
+plot(mixedBE)
+
+## Standard Residuals
+##The following model removes strain and photoperiod as factors to determine the effect of lean mass and Rep on lipid mass
+submod=lmer(lipid_mass ~ sample_day+(1|rep),data=dataBE, REML = TRUE)
+summary(submod)
+
+##Adding standardized residuals data to data set
+dataBE$stdresd<-as.vector(scale(resid(submod)))
+
+ggplot(dataBE,aes(x=photoperiod,y=stdresd, color=sample_day))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("BE Strain: Within Strain Effect of Photoperiod ")+
+  ylab("Lipid Mass")
+
+######################################################
+
+dataD=subset(data,photoperiod!="16")
+dataD=subset(dataD,lipid_mass!="NA")
+dataD=subset(dataD,lipid_mass>=0.0)
+mixedD=lmer(lipid_mass ~ strain+sample_day+(1|rep),data=dataD, REML = TRUE)
+summary(mixedD)
+plot(mixedD)
+
+## Standard Residuals
+##The following model removes strain and photoperiod as factors to determine the effect of lean mass and Rep on lipid mass
+submod=lmer(lipid_mass ~ strain+sample_day+(1|rep),data=dataD, REML = TRUE)
+summary(submod)
+
+##Adding standardized residuals data to data set
+dataD$stdresD<-as.vector(scale(resid(submod)))
+#dataD=subset(dataD,stdresD>=-0.2)
+
+ggplot(dataD,aes(x=strain,y=stdresD, color=sample_day))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("Diapause: Between Strain Effect of 12 hour Photoperiod ")+
+  ylab("Lipid Mass")
+
+######################################################
+
+dataND=subset(data,photoperiod!="12")
+dataND=subset(dataND,lipid_mass>=0)
+dataND=subset(dataND,lipid_mass<=0.02)
+mixedND=lmer(lipid_mass ~ strain+sample_day+(1|rep),data=dataND, REML = TRUE)
+summary(mixedND)
+plot(mixedND)
+
+## Standard Residuals
+##The following model removes strain and photoperiod as factors to determine the effect of lean mass and Rep on lipid mass
+submod=lmer(lipid_mass ~ sample_day+(1|rep),data=dataND, REML = TRUE)
+summary(submod)
+
+##Adding standardized residuals data to data set
+dataND$stdresND<-as.vector(scale(resid(submod)))
+
+ggplot(dataND,aes(x=strain,y=stdresND, color=sample_day))+
+  geom_boxplot()+
+  theme_classic()+
+  ggtitle("Diapause: Between Strain Effect of 16 hour Photoperiod ")+
+  ylab("Lipid Mass")
+
+````

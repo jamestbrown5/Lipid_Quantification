@@ -1,0 +1,53 @@
+---
+title: "Lipid Quant"
+author: "JT Brown"
+date: "April 17, 2018"
+output: html_document
+---
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(nlme)
+library(lme4)
+library(lmerTest)
+library(ez)
+library(lsr)
+library(dplyr)
+library(tidyr)
+library(googleVis)
+library(MASS)
+library(doBy)
+library(plyr)
+
+##PC
+wander=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
+```
+
+```{r}
+uz12=wander
+uz12=subset(wander,tray_id=="UZ12 0302"|tray_id=="UZ16 0302")
+uz12$strain<-(substr(uz12$tray_id,1,2))
+uz12$strain<-as.factor(uz12$strain)
+uz12$treat<-substr(uz12$tray_id,3,4)
+uz12$treat<-as.factor(as.character(uz12$treat))
+str(uz12)
+
+#converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
+uz12=gather(uz12,diapause,wander,wander_0504:wander_0327)
+uz12$wanderday<-as.numeric(substr(uz12$diapause,8,11))
+uz12$wanderday=as.factor(as.numeric(uz12$wanderday))
+uz12$wander=as.numeric(uz12$wander)
+
+str(uz12) #shows the structure of the data
+
+ggplot(uz12,aes(x=wanderday,y=wander))
+
+
+ggplot(uz12, aes(x=wanderday, fill=wander))+
+  theme_classic()+
+  geom_histogram(binwidth=.5, alpha=.5, position="identity")+
+  ggtitle("Wandering Stage")+
+  ylab("# of Insects in each stage")+xlab("Cohort")
+
+```

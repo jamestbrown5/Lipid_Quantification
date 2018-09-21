@@ -1,0 +1,33 @@
+---
+  title: "Visualizing July Lipid Data"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+  
+  ## loading libraies
+```{r}
+library(tidyr)
+library(ggplot2)
+library(plyr)
+library(MASS)
+library(readxl)
+library(knitr)
+```
+
+## reading in the data and looking at its structure
+```{r}
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Lipid Extraction Samples/20171207 Samples RAW data.xlsx", sheet = "2017JUN")
+str(data) #shows the structure of the data
+```
+
+```{R}
+resid(lm(data$lipid_mass~data$treat+Rep+))
+hist(resid(lm(data$lipid_mass~data$treat))
+
+hist(scale(resid(lm(data$lipid_mass~data$treat)))
+data$standresid=scale(resid(lm(data$lipid_mass~data$treat))
+
+
+````

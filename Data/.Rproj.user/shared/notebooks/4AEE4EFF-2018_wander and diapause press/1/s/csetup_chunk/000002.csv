@@ -1,0 +1,112 @@
+"0","knitr::opts_chunk$set(echo = TRUE)"
+"0","library(readxl)"
+"0","library(ggplot2)"
+"0","library(nlme)"
+"0","library(lme4)"
+"2","Loading required package: Matrix
+"
+"2","
+Attaching package: ‘lme4’
+
+"
+"2","The following object is masked from ‘package:nlme’:
+
+    lmList
+
+"
+"0","library(lmerTest)"
+"2","
+Attaching package: ‘lmerTest’
+
+"
+"2","The following object is masked from ‘package:lme4’:
+
+    lmer
+
+"
+"2","The following object is masked from ‘package:stats’:
+
+    step
+
+"
+"0","library(ez)"
+"0","library(lsr)"
+"0","library(dplyr)"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following object is masked from ‘package:nlme’:
+
+    collapse
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(tidyr)"
+"2","
+Attaching package: ‘tidyr’
+
+"
+"2","The following object is masked from ‘package:Matrix’:
+
+    expand
+
+"
+"0","library(googleVis)"
+"2","Creating a generic function for ‘toJSON’ from package ‘jsonlite’ in package ‘googleVis’
+"
+"2","
+Welcome to googleVis version 0.6.2
+
+Please read Google's Terms of Use
+before you start using the package:
+https://developers.google.com/terms/
+
+Note, the plot method of googleVis will by default use
+the standard browser to display its output.
+
+See the googleVis package vignettes for more details,
+or visit http://github.com/mages/googleVis.
+
+To suppress this message use:
+suppressPackageStartupMessages(library(googleVis))
+
+"
+"0","library(MASS)"
+"2","
+Attaching package: ‘MASS’
+
+"
+"2","The following object is masked from ‘package:dplyr’:
+
+    select
+
+"
+"0","library(doBy)"
+"0","library(plyr)"
+"2","----------------------------------------------------------------------------------------------------------------------------------
+"
+"2","You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)
+"
+"2","----------------------------------------------------------------------------------------------------------------------------------
+"
+"2","
+Attaching package: ‘plyr’
+
+"
+"2","The following objects are masked from ‘package:dplyr’:
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise, summarize
+
+"

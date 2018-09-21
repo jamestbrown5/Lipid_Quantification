@@ -1,0 +1,229 @@
+---
+title: "Visualizing July Lipid Data" #Goal: determine the explanatory variable for the accumulation of lipid mass given two different strains and given larvae exposed to two treatments.
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+##loading libraies
+library(tidyr)
+library(ggplot2)
+library(plyr)
+library(dplyr)
+library(MASS)
+library(readxl)
+library(doBy)
+```
+
+````{r Reading in the Data, removing NAs, and making new columns to separate possible explanatory variables}
+## reading in the data and looking at its structure
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/20171207 Samples RAW data.xlsx", sheet = "2017JUL")
+
+#converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
+dat.long=gather(data,traits,measurement,wet_mass:lipid_mass)
+
+##This code breaks apart the data in the column "treat" into "strain" and "photoperiod"
+data$strain<-substr(data$treat,1,2)
+data$photoperiod<-as.numeric(substr(data$treat,3,4))
+
+##Exclude NAs from the data set
+data2<-na.omit(data)
+
+##Setting Photoperiod as a numeric variable so it can be quantified by the model
+data2$photoperiod<-as.factor(as.character(data2$photoperiod))
+
+##Adding an SD column to data set
+
+
+str(data2) #shows the structure of the data
+````
+
+
+```{r model construction}
+## Intrx between strain and photoperiod model used to check for significance, (what are the additions called?)
+mm1<-aov(lipid_mass~photoperiod*strain+Rep+lean_mass+wet_mass,data=data2)
+summary(mm1)
+par(mfrow=c(2,2))
+plot(mm1)
+
+##The following model removes strain and photoperiod as factors to determine the effect of lean mass and rep on lipid mass
+submod<-aov(lipid_mass~Rep+lean_mass,data=data2)
+
+##Adding standardized residuals data to data set
+data2$stdresd<-as.vector(scale(resid(submod)))
+
+##Plotting the standardized residuals against strain colored by photoperiod
+par(mfrow=c(1,1))
+ggplot(data2,aes(x=strain,y=stdresd,colour=factor(photoperiod)))+
+  geom_boxplot()
+
+##Strain effect by std residuals of lipid mass
+ggplot(data2,aes(x=strain,y=stdresd))+
+  geom_boxplot()
+
+##Photoperiod effect by std residuals of lipid mass
+ggplot(data2,aes(x=photoperiod,y=stdresd))+
+  geom_boxplot()
+```
+
+
+```{r}
+#converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
+dat.long=gather(data,traits,measurement,wet_mass:lipid_mass)
+````
+
+##General Approach
+  * Fit a regression model to predict variable (Y).
+  * Obtain the predicted and residual values associated with each observation on (Y).
+  * Plot the actual and predicted values of (Y) so that they are distinguishable, but connected.
+  * Use the residuals to make an aesthetic adjustment (e.g. red colour when residual in very high) to highlight points which are poorly predicted by the model.
+ 
+Simple Linear Regression
+
+#1. Step 1: fit the model: First, we will fit our model. In this instance, let’s copy the dataset to a new object d so we can manipulate it later
+````{r}
+data1=subset(data,data$treat!="BE12")
+data2=subset(data1,data1$treat!="UZ12")
+data3=subset(data,data$treat!="BE16")
+data4=subset(data3,data3$treat!="UZ16")
+
+
+d=data
+fit=lm(d$lipid_mass ~ d$treat, na.action = na.exclude)
+summary(fit)  # Report the results
+par(mfrow = c(2, 2))  #Split the plotting panel 
+plot(fit)  # Plot the model information
+````
+
+#Step 2: obtain predicted and residual values: Next, we want to get predicted and residual values to add supplementary information to this graph. We can do this as follows:
+````{r}
+d$predicted=predict(fit)   # Save the predicted values
+d$residual=residuals(fit) # Save the residual values
+````
+
+#Step 3: plot the actual and predicted values: Plotting these values takes a couple of intermediate steps. First, we plot our actual data as follows:
+````{r}
+
+ggplot(d, aes(x = treat, y = lipid_mass)+  # and Plot the actual points
+  geom_point()+ # Set up canvas with outcome variable on y-axis
+  geom_point(aes(y = predicted), shape = 1)+ # Add the predicted values
+  geom_segment(aes(xend = treat, yend = predicted))+
+  geom_point(aes(y = predicted), shape = 1))
+````
+
+
+````{r}
+## here are the plots
+## all the trait measurements against treat as boxplot
+ggplot(dat.long,aes(x=treat,y=measurement))+
+  geom_boxplot()+
+  facet_grid(traits~.,scales="free")
+
+## all the trait measurements against treat as boxplot
+ggplot(dat.long,aes(x=treat,y=measurement))+
+  geom_boxplot()+
+  facet_grid(traits~.,scales="free")
+````
+
+````{r}
+## The response of each trait within each treatment (read:strain and photoperiod)
+ggplot(dat.long,aes(x=treat,y=measurement,colour=treat))+
+  theme_classic()+
+  geom_boxplot()+
+  ggtitle("Trait Measurements")+
+  scale_colour_discrete(name="Strain x PP")+
+  facet_grid(traits~.,scales="free")
+````
+
+##Exploring the stats using ANOVA
+````{r}
+##Changing the number of panels on each output
+par(mfrow = c(2, 2))
+
+###Subsetting data into UZ and BE sets for separate anova analysis
+data1=subset(data,data$treat!="BE12")
+data2=subset(data1,data1$treat!="BE16")
+data3=subset(data,data$treat!="BE16")
+data4=subset(data3,data3$treat!="BE16")
+
+##constructing an aov model for UZ where "modaUZ" is additive and "modbUZ" is multiplicative
+moda=aov(lipid_mass~treat*Rep*lean_mass,data=data)
+summary(moda)
+plot(moda)
+
+modb=aov(lipid_mass~treat*Rep*lean_mass,data=data)
+summary(modb)
+plot(modbUZ)
+
+##constructing an aov model for BE where "modaBE" is additive and "modbBE" is multiplicative
+modaBE=aov(lipid_mass~treat+Rep+lean_mass,data=data4)
+summary(modaBE)
+plot(modaBE)
+
+modbBE=aov(lipid_mass~treat*Rep*lean_mass,data=data4)
+summary(modbBE)
+plot(modbBE)
+`````
+
+##Exploring the Stats using AIC
+`````{r}
+## checking model with AIC
+mod1=stepAIC(moda, direction="both")
+summary(mod1)
+
+mod2=stepAIC(modbUZ, direction="both")
+summary(mod2)
+head(data)
+
+## checking model visualy : BE strain
+mod3=stepAIC(modaBE, direction="both")
+summary(mod3)
+
+
+
+
+
+mod4=stepAIC(modbBE, direction="both")
+summary(mod4)
+
+````
+
+###Calculating the means. Visualized using boxplots and point plots 
+````{r}
+
+
+mean.dat=ddply(data, c("treat","lipid_mass"),summarize,
+               N    = length(lipid_mass),
+               mean = mean(lipid_mass),
+               sd   = sd(lipid_mass),
+               se   = sd / sqrt(N))
+summary(mean.dat)
+
+ggplot(data,aes(x=treat,y=lipid_mass))+
+  geom_boxplot()+
+  geom_line(data=mean.dat,aes(x=treat,y=mean))
+
+ggplot(data,aes(x=treat,y=lipid_mass,colour=Rep)+
+         geom_point()+
+         geom_line(data=mean.dat,aes(x=treat,y=mean,colour=Rep))
+
+data$resid=scale(resid(aov(modaUZ)))
+mean.dat2=ddply(data,.(treat,Rep),summarize,mean=mean(data$resid),sd=sd(data$resid))
+
+ggplot(data,aes(x=treat,y=resid,colour=Rep))+geom_boxplot()+geom_line(data=mean.dat,aes(x=treat,y=mean,colour=Rep))
+
+ggplot(mean.dat,aes(x=treat,y=mean,colour=Rep,group=Rep))+geom_line(position="identity",size=2)+geom_errorbar(aes(ymin=mean-sd,ymax=mean+sd),width=.35,size=2)+geom_point(size=10)+ylab("Standardized Residuals of Lipid Mass")
+`````
+
+````{r}
+##subsetting out extreme sample lines in wet larvae 
+#subset(data,Lipid.Wt>0.63)
+
+## removing data lines via subset
+#sub.out=subset(data,WET.Larva<0.6)
+
+## or 
+
+#sub.out1=data[-95,]
+#dim(sub.out)

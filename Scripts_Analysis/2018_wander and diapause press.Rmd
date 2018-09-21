@@ -1,0 +1,48 @@
+---
+title: "Lipid Quant"
+author: "JT Brown"
+date: "April 11, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(ggplot2)
+library(nlme)
+library(lme4)
+library(lmerTest)
+library(ez)
+library(lsr)
+library(dplyr)
+library(tidyr)
+library(MASS)
+library(doBy)
+library(plyr)
+
+##PC
+wander=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
+```
+
+```{r}
+uz12=wander
+uz12$strain<-substr(uz12$tray_id,1,2)
+uz12$treat<-substr(uz12$tray_id,3,4)
+uz12$cohort<-substr(uz12$tray_id,6,9)
+str(uz12)
+
+#converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
+uz12=gather(uz12,diapause,wander,wander_0413:wander_0327)
+str(uz12) #shows the structure of the data
+
+
+
+ggplot(uz12,aes(x=cohort,y=wander))
+
+ggplot(uz12, aes(x=diapause, fill=cohort))+
+  theme_classic()+
+  geom_histogram(binwidth=.5, alpha=.5, position="identity")+
+  ggtitle("Wandering Stage")+
+  ylab("# of Insects in each stage")+xlab("Cohort")
+
+```
