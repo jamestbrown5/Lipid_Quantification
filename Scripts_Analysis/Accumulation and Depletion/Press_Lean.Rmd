@@ -1,12 +1,11 @@
 ---
-title: "Press BE"
+title: "ECB Lean Mass Phenotype"
 editor_options: null
-  chunk_output_type: inline
+chunk_output_type: inline
 output: html_document
-df_print: paged
-chunk_output_type: console
+
 ---
-### Goal: Rear UZ and BE at 23C at 16:8 and 12:12 L:D regimens (UZ12, UZ16, BE12, BE16). Track CO2 production as a function of number of days after molting into the 5th instar. Track average weight gain as a function of number of days after molting into the 5th instar. Compare CO2 production and weight gain within strain and between L:D then compare L:D between strains 
+### Goal: Rear UZ and BE at 23C at 16:8 and 12:12 L:D regimens (UZ12, UZ16, BE12, BE16). Track lean mass changes during the 5th instar, the wandering stage, and during diapause. 
 
 ##Call Data
 ````{r}
@@ -52,7 +51,7 @@ data$sample_day<-factor(data$sample_day, levels=c("1" , "3" , "7" , "W" , "pW1" 
 data$cohort<-as.factor(as.character(data$cohort))
 
 #Reducing df
-data1=data[1:626, c("sample_day", "treat","sample_id","5th_date","cohort", "wet_mass","dry_mass","lean_mass","lipid_mass","strain","photoperiod")]
+data1=data[1:626, c("sample_day","rep", "treat","sample_id","5th_date","cohort", "wet_mass","dry_mass","lean_mass","lipid_mass","strain","photoperiod")]
 
 #converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
 dataT=gather(data,traits,measurement,wet_mass:lipid_mass)
@@ -77,321 +76,450 @@ ggplot(data=dataTr,aes(x=sample_day,y=measurement,fill=traits))+
   ggtitle("Larvae Traits")+
   ylab("Traits")+xlab("Sample Day")
 
-#Larva Wet Mass Plot
-dataW=data1
-dataW=subset(dataW,wet_mass>=0.0001)
-dataW=subset(dataW,wet_mass<=0.1000)
-count(dataW$treat)
-dataW=subset(dataW,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
-
-
-
-ggplot(data=dataW,aes(x=sample_day,y=wet_mass,color=treat))+
-  stat_summary(aes(y = wet_mass,group=treat), fun.y=mean, geom="line")+
-  stat_summary(fun.y=median, fun.ymin=function(x) median(x) - sd(x), 
-               fun.ymax=function(x) median(x) + sd(x), geom="errorbar", width=0.1) +
-  facet_wrap(~photoperiod)+
-  theme_classic()+
-  ggtitle("Treatment Comparison of Larvae Wet Mass (UZ 168 larvae : BE 203 larvae)")+
-  ylab("Wet Mass")+xlab("Sample Day")
+#Larva lean Mass Plot
+datal=data1
+datal=subset(datal,lean_mass>=0.0001)
+datal=subset(datal,lean_mass<=0.1000)
+count(datal$treat)
+datal=subset(datal,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
 ```
 
+##Lean Mass Comparison Between Treatments
 ```{r}
-#Larva Dry Mass Plot
-dataD=data1
-#dataD=subset(dataD,dry_mass>=0.0001)
-#dataD=subset(dataD,dry_mass<=0.1000)
-count(dataD$treat)
-dataD=subset(dataD,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
-
-res=boxplot(dry_mass ~ sample_day, data=dataD)
-res$stats
-
-ggplot(data=dataD,aes(x=sample_day,y=dry_mass, color=treat))+
-  stat_summary(aes(y = dry_mass,group=treat), fun.y=mean, geom="line")+
-  stat_summary(fun.y=median, fun.ymin=function(x) median(x) - sd(x), 
-               fun.ymax=function(x) median(x) + sd(x), geom="errorbar", width=0.1) +
-  facet_wrap(~photoperiod)+
-  theme_classic()+
-  ggtitle("Treatment Comparison of Larvae Dry Mass (UZ 255 larvae : BE 201 lavae)")+
-  ylab("Dry Mass")+xlab("Sample Day")
-```
-
-```{r}
-#Larva Lean Mass Plot
+#Larva Lean Mass Comparison Between Treatments
 dataL=data1
-dataL=subset(dataL,lean_mass>=0.0001)
-dataL=subset(dataL,lean_mass<=0.1000)
+dataL=subset(dataL,lean_mass>=0)
+#dataL=subset(dataL,lean_mass<=0.1000)
 count(dataL$treat)
-dataL=subset(dataL,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
-ggplot(data=dataL,aes(x=sample_day,y=lean_mass,color=treat))+
+dataL=subset(dataL,sample_day=="1"| sample_day=="W")
+ggplot(data=dataL,aes(x=sample_day,y=lean_mass,group=photoperiod,color=photoperiod))+
+  stat_summary(aes(y = lean_mass), fun.y=mean, geom="line")+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 178 : BE 164 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day")
+
+
+
+
+### Is there a significant difference in lean mass accumulation between treatments in preparation for diapause?
+#### These Data include Day 1 larvae and Day W larvae from both treatments.
+
+######################
+# Larva Lean Mass    #
+# Between Strains ####
+# Between Treatments #
+###### Day 1 #########
+
+
+dataL1=subset(data,sample_day=="1")
+dataL1=subset(dataL1,lean_mass>="0")
+dataL1=subset(dataL1,lean_mass<="0.07")
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Photoperiod Does NOT SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedL1=lmer(lean_mass ~ photoperiod + (1|rep) ,data=dataL1, REML = TRUE)
+summary(mixedL1)
+plot(mixedL1)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodL1=lmer(lean_mass ~ (1|rep),data=dataL1, REML = TRUE)
+summary(submodL1)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataL1$stdresL1<-as.vector(scale(resid(submodL1)))
+
+ggplot(data=dataL1,aes(x=sample_day,y=lean_mass,color=photoperiod))+
+  stat_summary(aes(y = lean_mass), fun.y=mean)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lean Mass")+
+  ylab("lean Mass")+xlab("Sample Day 1")
+
+
+
+######################
+# Larva Lean Mass    #
+# Between Strains ####
+# Between Treatments #
+###### Day W #########
+
+##Mixed model with 'rep' as a random factor
+
+dataLW=subset(data,sample_day=="W")
+dataLW=subset(dataLW,lean_mass>="0")
+dataLW=subset(dataLW,lean_mass<="0.07")
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedLW=lmer(lean_mass ~ photoperiod + (1|rep) ,data=dataLW, REML = TRUE)
+summary(mixedLW)
+plot(mixedLW)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodLW=lmer(lean_mass ~ (1|rep),data=dataLW, REML = TRUE)
+summary(submodLW)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLW$stdresLW<-as.vector(scale(resid(submodLW)))
+
+ggplot(data=dataLW,aes(x=sample_day,y=lean_mass,color=photoperiod))+
+  stat_summary(aes(y = lean_mass), fun.y=mean)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lean Mass")+
+  ylab("lean Mass")+xlab("Sample Day W")
+```
+
+##Lean Mass Comparison Within Diapause Treatment
+```{r}
+######################
+#Larva lean Mass Plot#
+# Within  Treatments #
+######################
+
+### Diapause###
+dataLeD=data1
+dataLeD=subset(dataLeD,photoperiod==12)
+dataLeD=subset(dataLeD,lean_mass>=0)
+#dataLeD=subset(dataLeD,lean_mass<=0.1000)
+count(dataLeD$treat)
+dataLeD=subset(dataLeD,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+
+ggplot(data=dataLeD,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("Diapause: Between Strain Comparison of Larvae lean Mass (UZ 117 : BE 107 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day")
+  
+######################
+# Larva Lean Mass    #
+# Within  Treatments #
+###### Day 1 #########
+
+##Mixed model with 'rep' as a random factor
+
+dataLeD1=subset(data1,photoperiod==12)
+dataLeD1=subset(dataLeD1,lean_mass>=0)
+dataLeD1=subset(dataLeD1,sample_day=="1")
+count(dataLeD1$treat)
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedLeD1=lmer(lean_mass ~  strain + (1|rep),data=dataLeD1, REML = TRUE)
+summary(mixedLeD1)
+plot(mixedLeD1)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodLeD1=lmer(lean_mass ~ (1|rep),data=dataLeD1, REML = TRUE)
+summary(submodLeD1)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLeD1$stdresLeD1<-as.vector(scale(resid(submodLeD1)))
+
+ggplot(data=dataLeD1,aes(x=sample_day,y=lean_mass,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 25 : BE 17 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day 1")
+
+######################
+# Larva Lean Mass    #
+# Between Strains ####
+# Within  Treatments #
+###### Day W #########
+
+##Mixed model with 'rep' as a random factor
+
+dataLeDW=subset(data1,photoperiod==12)
+dataLeDW=subset(dataLeDW,lean_mass>=0)
+dataLeDW=subset(dataLeDW,sample_day=="W")
+
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedLeDW=lmer(lean_mass ~  strain + (1|rep),data=dataLeDW, REML = TRUE)
+summary(mixedLeDW)
+plot(mixedLeDW)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodLeDW=lmer(lean_mass ~ (1|rep),data=dataLeDW, REML = TRUE)
+summary(submodLeDW)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLeDW$stdresLeDW<-as.vector(scale(resid(submodLeDW)))
+
+ggplot(data=dataLeDW,aes(x=sample_day,y=lean_mass,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 34 : BE 43 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day W")
+
+
+######################
+# Larva Lean Mass    #
+# Between Strains ####
+# Within  Treatments #
+###### Day W15 #######
+
+##Mixed model with 'rep' as a random factor
+
+dataLeDW15=subset(data1,sample_day=="W15")
+dataLeDW15=subset(dataLeDW15,lean_mass>="0")
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedLeDW15=lmer(lean_mass ~ strain + (1|rep) ,data=dataLeDW15, REML = TRUE)
+summary(mixedLeDW15)
+plot(mixedLeDW15)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodLeDW15=lmer(lean_mass ~ (1|rep),data=dataLeDW15, REML = TRUE)
+summary(submodLeDW15)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLeDW15$stdresLeDW15<-as.vector(scale(resid(submodLeDW15)))
+
+ggplot(data=dataLeDW15,aes(x=sample_day,y=lean_mass,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 19 : BE 37 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day W15")
+
+######################
+# Larva Lean Mass    #
+# Between Strains ####
+# Within  Treatments #
+###### Day w20 #######
+
+##Mixed model with 'rep' as a random factor
+
+dataLeDW20=subset(data1,sample_day=="W20")
+dataLeDW20=subset(dataLeDW20,lean_mass>="0")
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedLeDW20=lmer(lean_mass ~ strain + (1|rep) ,data=dataLeDW20, REML = TRUE)
+summary(mixedLeDW20)
+plot(mixedLeDW20)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodLeDW20=lmer(lean_mass ~ (1|rep),data=dataLeDW20, REML = TRUE)
+summary(submodLeDW20)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLeDW20$stdresLeDW20<-as.vector(scale(resid(submodLeDW20)))
+
+ggplot(data=dataLeDW20,aes(x=sample_day,y=lean_mass,color=treat))+
   stat_summary(aes(y = lean_mass,group=treat), fun.y=mean, geom="line")+
   stat_summary(fun.y=median, fun.ymin=function(x) median(x) - sd(x), 
                fun.ymax=function(x) median(x) + sd(x), geom="errorbar", width=0.1) +
   facet_wrap(~photoperiod)+
   theme_classic()+
-  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 158 : BE 152 larvae)")+
-  ylab("lean Mass")+xlab("Sample Day")
-```
-```{r}
-#Larva Lipid Mass Plot
-dataLi=data1
-dataLi=subset(dataLi,lipid_mass>=0.0001)
-dataLi=subset(dataLi,lipid_mass<=0.2000)
-count(dataLi$treat)
-dataLi=subset(dataLi,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
-ggplot(data=dataLi,aes(x=sample_day,y=lipid_mass,color=treat))+
-  stat_summary(aes(y = lipid_mass,group=treat), fun.y=mean, geom="line")+
+  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 20 : BE 6 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day W20")
+
+
+######################
+# Larva Lean Mass    #
+# Between Strains ####
+# Within  Treatments #
+###### Day w30 #######
+
+##Mixed model with 'rep' as a random factor
+
+dataLeDW30=subset(data1,sample_day=="W30")
+dataLeDW30=subset(dataLeDW30,lean_mass>="0")
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedLeDW30=lmer(lean_mass ~ strain + (1|rep) ,data=dataLeDW30, REML = TRUE)
+summary(mixedLeDW30)
+plot(mixedLeDW30)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodLeDW30=lmer(lean_mass ~ (1|rep),data=dataLeDW30, REML = TRUE)
+summary(submodLeDW30)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLeDW30$stdresLeDW30<-as.vector(scale(resid(submodLeDW30)))
+
+ggplot(data=dataLeDW30,aes(x=sample_day,y=lean_mass,color=treat))+
+  stat_summary(aes(y = lean_mass,group=treat), fun.y=mean, geom="line")+
   stat_summary(fun.y=median, fun.ymin=function(x) median(x) - sd(x), 
-               fun.ymax=function(x) median(x) + sd(x), geom="errorbar", width=0.25) +
+               fun.ymax=function(x) median(x) + sd(x), geom="errorbar", width=0.1) +
   facet_wrap(~photoperiod)+
   theme_classic()+
-  ggtitle("Treatment Comparison of Larvae Lipid Mass")+
-  ylab("Lipid Mass")+xlab("Sample Day")
-
-ggplot(data=dataLi,aes(x=sample_day,y=lipid_mass,color=treat))+
-  geom_boxplot()+
-  facet_wrap(~photoperiod)+
-  theme_classic()+
-  ggtitle("Treatment Comparison of Larvae Lipid Mass")+
-  ylab("Lipid Mass")+xlab("Sample Day")
-
-p =boxplot(lipid_mass~sample_day, data=dataLi)
-p$stats
+  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 19 : BE 4 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day W30")
 ```
 
+##Lean Mass Comparison Within Non Diapause Treatment
 ```{r}
-#Larva Lipid Mass Plot
-dataLiD=data1
-dataLiD=subset(dataLiD,photoperiod!="16")
-dataLiD=subset(dataLiD,lipid_mass>=0.0001)
-dataLiD=subset(dataLiD,lipid_mass<=0.1000)
-count(dataLiD$treat)
-dataLiD=subset(dataLiD,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
-ggplot(data=dataLiD,aes(x=sample_day,y=lipid_mass,group=treat,color=treat))+
+######################
+#Larva lean Mass Plot#
+# Within   Treatment #
+######################
+
+### Non Diapause###
+dataLeND=data1
+dataLeND=subset(dataLeND,photoperiod==16)
+dataLeND=subset(dataLeND,lean_mass>=0)
+#dataLeND=subset(dataLeND,lean_mass<=0.1000)
+count(dataLeND$treat)
+dataLeND=subset(dataLeND,sample_day=="1"| sample_day=="W")
+
+ggplot(data=dataLeND,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line",shape=18)+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
   theme_classic()+
-  ggtitle("Diapause: Between Strain Comparison of Larvae Lipid Mass")+
-  ylab("Lipid Mass")+xlab("Sample Day")
+  ggtitle("Non Diapause: Between Strain Comparison of Larvae lean Mass (UZ 117 : BE 107 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day")
   
-dataLiD=data1
-dataLiD=subset(dataLiD,photoperiod!="16")
-dataLiD=subset(dataLiD,lipid_mass>=0.0001)
-dataLiD=subset(dataLiD,lipid_mass<=0.1000)
-dataLiD=subset(dataLiD,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+######################
+# Larva Lean Mass    #
+# Within  Treatments #
+###### Day 1 #########
 
-ggplot(data=dataLiD,aes(x=sample_day,y=lipid_mass,group=treat,color=treat))+
+##Mixed model with 'rep' as a random factor
+
+dataLeND1=subset(data1,photoperiod==12)
+dataLeND1=subset(dataLeND1,lean_mass>=0)
+dataLeND1=subset(dataLeND1,sample_day=="1")
+count(dataLeND1$treat)
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedLeND1=lmer(lean_mass ~  strain + (1|rep),data=dataLeND1, REML = TRUE)
+summary(mixedLeND1)
+plot(mixedLeND1)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodLeND1=lmer(lean_mass ~ (1|rep),data=dataLeND1, REML = TRUE)
+summary(submodLeND1)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLeND1$stdresLeND1<-as.vector(scale(resid(submodLeND1)))
+
+ggplot(data=dataLeND1,aes(x=sample_day,y=lean_mass,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 25 : BE 17 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day 1")
+
+######################
+# Larva Lean Mass    #
+# Between Strains ####
+# Within  Treatments #
+###### Day W #########
+
+##Mixed model with 'rep' as a random factor
+
+dataLeNDW=subset(data1,photoperiod==12)
+dataLeNDW=subset(dataLeNDW,lean_mass>=0)
+dataLeNDW=subset(dataLeNDW,sample_day=="W")
+
+
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+mixedLeNDW=lmer(lean_mass ~  strain + (1|rep),data=dataLeNDW, REML = TRUE)
+summary(mixedLeNDW)
+plot(mixedLeNDW)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodLeNDW=lmer(lean_mass ~ (1|rep),data=dataLeNDW, REML = TRUE)
+summary(submodLeNDW)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLeNDW$stdresLeNDW<-as.vector(scale(resid(submodLeNDW)))
+
+ggplot(data=dataLeNDW,aes(x=sample_day,y=lean_mass,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lean Mass (UZ 34 : BE 43 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day W")
+```
+
+```{r}
+######################
+# Larva lean Mass    #
+# Within Strain      #
+# Between Treatments #
+######################
+
+### BE ###
+dataLeBE=data1
+dataLeBE=subset(dataLeBE,strain!="UZ")
+dataLeBE=subset(dataLeBE,lean_mass>=0.0001)
+#dataLeBE=subset(dataLeBE,lean_mass<=0.1000)
+count(dataLeBE$treat)
+dataLeBE=subset(dataLeBE,sample_day=="1"| sample_day=="W")
+
+ggplot(data=dataLeBE,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("BE: Within Strain Comparison of Larvae lean Mass")+
+  ylab("lean Mass")+xlab("Sample Day")
+  
+dataLeBE=data1
+dataLeBE=subset(dataLeBE,strain!="UZ")
+dataLeBE=subset(dataLeBE,lean_mass>=0.0001)
+#dataLeBE=subset(dataLeBE,lean_mass<=0.1000)
+dataLeBE=subset(dataLeBE,sample_day=="1"| sample_day=="W")
+
+ggplot(data=dataLeBE,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   geom_smooth(method=lm,color="black",se=TRUE)+
   scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
   theme_classic()+
-  ggtitle("Diapause: Between Strain Comparison of Larvae Lipid Mass")+
-    ylab("Lipid Mass")+
+  ggtitle("BE: Within Strain Comparison of Larvae lean Mass")+
+    ylab("lean Mass")+
     xlab("Sample Day")
 
-dataLiE=subset(data1,strain=="BE")
-dataLiE=subset(dataLiE,photoperiod!="16")
-mE=lm(lipid_mass~sample_day,data=dataLiE)
-a=signif(coef(mE)[1],digits=2)
-b=signif(coef(mE)[2],digits=2)
-textlab=paste("y=",b,"x+",a,sep=)
-print(textlab)
-summary(mE)
+### UZ ###
+dataLeUZ=data1
+dataLeUZ=subset(dataLeUZ,photoperiod!="12")
+dataLeUZ=subset(dataLeUZ,lean_mass>=0.0001)
+#dataLeUZ=subset(dataLeUZ,lean_mass<=0.1000)
+count(dataLeUZ$treat)
+dataLeUZ=subset(dataLeUZ,sample_day=="1"| sample_day=="W")
 
-dataLiF=subset(data1,strain=="UZ")
-dataLiF=subset(dataLiF,photoperiod!="16")
-mF=lm(lipid_mass~sample_day,data=dataLiF)
-a=signif(coef(mF)[1],digits=2)
-b=signif(coef(mF)[2],digits=2)
-textlab=paste("y=",b,"x+",a,sep=)
-print(textlab)
-summary(mF)
-
-#aov(dataLiE,dataLiF)
-
-#stat_summary(fun.y=mean, fun.ymin=function(x) mean(x) - sd(x), fun.ymax=function(x) mean(x) + sd(x), geom="errorbar", multiplier=2, width=0.25) +
-
-
-#Larva Lipid Mass Plot
-dataLiND=data1
-dataLiND=subset(dataLiND,photoperiod!="12")
-dataLiND=subset(dataLiND,lipid_mass>=0.0001)
-dataLiND=subset(dataLiND,lipid_mass<=0.1000)
-count(dataLiND$treat)
-dataLiND=subset(dataLiND,sample_day=="1"|sample_day=="W")
-ggplot(data=dataLiND,aes(x=sample_day,y=lipid_mass,fill=treat))+
-  geom_boxplot()+
+ggplot(data=dataLeUZ,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
   theme_classic()+
-  ggtitle("Non-Diapause: Between Strain Comparison of Larvae Lipid Mass")+
-  ylab("Lipid Mass")+xlab("Sample Day")
-```
+  ggtitle("UZ: Within Strain Comparison of Larvae lean Mass")+
+  ylab("lean Mass")+xlab("Sample Day")
+  
+dataLeUZ=data1
+dataLeUZ=subset(dataLeUZ,photoperiod!="12")
+dataLeUZ=subset(dataLeUZ,lean_mass>=0.0001)
+#dataLeUZ=subset(dataLeUZ,lean_mass<=0.1000)
+dataLeUZ=subset(dataLeUZ,sample_day=="1"| sample_day=="W")
 
-```{r}
-dataLilmD=data1
-dataLilmD=subset(dataLilmD,strain!="UZ")
-dataLilmD=subset(dataLilmD,lipid_mass>=0.0001)
-dataLilmD=subset(dataLilmD,lipid_mass<=0.0160)
-dataLilmD=subset(dataLilmD,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
-
-m=lm(formula=dataLilmD$lipid_mass~dataLilmD$sample_day)
-a=signif(coef(m)[1],digits=2)
-b=signif(coef(m)[2],digits=2)
-textlab=paste("y=",b,"x+",a,sep="")
-print(textlab)
-```
-
-
-
-```{r}
-dataLiD=data1
-#dataLiD=subset(dataLiD,photoperiod!="16")
-dataLiD=subset(dataLiD,lipid_mass>=0.0001)
-dataLiD=subset(dataLiD,lipid_mass<=0.1000)
-count(dataLiD$treat)
-dataLiD=subset(dataLiD,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
-m=lm(dataLiD$lipid_mass~dataLiD$sample_day)
-a=signif(coef(m)[1],digits=2)
-b=signif(coef(m)[2],digits=2)
-textlab=paste("y=",b,"x+",a,sep=)
-print(textlab)
-
-```
-
-```{r}
-#Larva Lipid Mass Plot
-dataLiU=data1
-#dataLiU=subset(dataLiU,treat=="UZ12"|treat=="UZ16")
-dataLiU=subset(dataLiU,lipid_mass>=0.0001)
-dataLiU=subset(dataLiU,lipid_mass<=0.1000)
-count(dataLiU$treat)
-dataLiU=subset(dataLiU,sample_day=="1" | sample_day=="W")
-ggplot(data=dataLiU,aes(x=sample_day,y=lipid_mass,color=treat,group=treat))+
+ggplot(data=dataLeUZ,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
-  theme_classic()+
+  geom_smooth(method=lm,color="black",se=TRUE)+
   scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
-  ggtitle("UZ: Within Strain Comparison of Larvae Lipid Mass")+
-  ylab("Lipid Mass")+xlab("")
-
-
-#Larva Lipid Mass Plot
-dataLiB=data1
-dataLiB=subset(dataLiB,treat=="BE12"|treat=="BE16")
-dataLiB=subset(dataLiB,lipid_mass>=0.0001)
-dataLiB=subset(dataLiB,lipid_mass<=0.1000)
-count(dataLiB$treat)
-dataLiB=subset(dataLiB,sample_day=="1" | sample_day=="W")
-ggplot(data=dataLiB,aes(x=sample_day,y=lipid_mass,color=treat,group=treat))+
-stat_summary(fun.y=mean, geom="line")+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.25) +
   theme_classic()+
-  ggtitle("BE: Within Strain Comparison of Larvae Lipid Mass")+
-  ylab("Lipid Mass")+xlab("Sample Day")
-
-#Larva Lipid Mass Plot
-dataLiC=data1
-#dataLiC=subset(dataLiC,treat=="BE12"|treat=="BE16")
-dataLiC=subset(dataLiC,lipid_mass>=0.0001)
-dataLiC=subset(dataLiC,lipid_mass<=0.1000)
-count(dataLiC$treat)
-dataLiC=subset(dataLiC,sample_day=="1")
-ggplot(data=dataLiC,aes(x=sample_day,y=lipid_mass,color=treat,group=treat))+
-stat_summary(fun.y=mean, geom="point",shape=8,size=2)+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
-  theme_classic()+
-  facet_wrap(~photoperiod)+
-  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
-  ggtitle("Within Strain Comparison of Larvae Lipid Mass")+
-  ylab("Lipid Mass")+xlab("Sample Day")
-
-dataLiC=data1
-#dataLiC=subset(dataLiC,treat=="BE12"|treat=="UZ12")
-dataLiC=subset(dataLiC,lipid_mass>=0.0001)
-dataLiC=subset(dataLiC,lipid_mass<=0.1000)
-count(dataLiC$treat)
-dataLiC=subset(dataLiC,sample_day=="1")
-ggplot(data=dataLiC,aes(x=sample_day,y=lipid_mass))+
-stat_summary(fun.y=mean, geom="point",shape=8,size=2)+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
-  theme_classic()+
-  facet_wrap(~photoperiod)+
-  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
-  ggtitle("Within Strain Comparison of Larvae Lipid Mass")+
-  ylab("Lipid Mass")+xlab("Sample Day")
-
-
+  ggtitle("UZ: Within Strain Comparison of Larvae lean Mass")+
+    ylab("lean Mass")+
+    xlab("Sample Day")
 ```
 
-````{r}
 
-### Is there a difference in lipid accumulation between treatments in preparation for diapause? These Data include Day 1 larvae and Day W larvae from both treatments.
 
-##########################
-##Lipid Mass Btw Treat####
-######## Day 1 ###########
 
-##Mixed model with 'rep' as a random factor
 
-dataALL=subset(data,sample_day=="1")
-dataALL=subset(dataALL,lipid_mass>="0")
-dataALL=subset(dataALL,lipid_mass<="0.05")
-dataALL=subset(dataALL,lipid_mass!="NA")
-labels<-c("12"="Diapause","16"="Non Diapause")
-ggplot(dataALL,aes(x=sample_day,y=lipid_mass,group=strain,color=strain))+
-  stat_summary(fun.y=mean, geom="point", shape=8,size=2)+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.10) +
-  facet_wrap(~photoperiod)+
-  theme_classic()+
-  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
-  ggtitle("Photoperiod Comparison of Lipid Mass")+
-  scale_colour_discrete(name="Diapause\nLength") 
-                      
-ggplot(dataALL,aes(x=sample_day,y=lipid_mass))+
-  stat_summary(fun.y=mean, geom="line")+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.25) +
-  theme_classic()+
-  facet_wrap(~photoperiod)+
-  ggtitle("Photoperiod Comparison of Lipid Mass")+
-  ylab("Lipid Mass")
-
-#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
-dataALL1=subset(dataALL,sample_day=="1")
-mixedALL1=lmer(lipid_mass ~ photoperiod + (1|rep) ,data=dataALL1, REML = TRUE)
-summary(mixedALL1)
-plot(mixedALL1)
-##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lipid mass
-submodALL1=lmer(lipid_mass ~ (1|rep),data=dataALL1, REML = TRUE)
-summary(submodALL1)
-
-## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
-dataALL1$stdresALL1<-as.vector(scale(resid(submodALL1)))
-```
-
-```{r}
-##########################
-##Lipid Mass Btw Treat####
-######## Day W ###########
-
-##Mixed model with 'rep' as a random factor
-
-dataALLW=subset(data,sample_day=="W")
-dataALLW=subset(dataALLW,lipid_mass>="0")
-dataALLW=subset(dataALLW,lipid_mass!="NA")
-
-#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
-mixedALLW=lmer(lipid_mass ~ photoperiod + (1|rep) ,data=dataALLW, REML = TRUE)
-summary(mixedALLW)
-plot(mixedALLW)
-##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lipid mass
-submodALLW=lmer(lipid_mass ~ (1|rep),data=dataALLW, REML = TRUE)
-summary(submodALLW)
-
-## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
-dataALLW$stdresALLW<-as.vector(scale(resid(submodALLW)))
-```
 
 ```{r}
 
