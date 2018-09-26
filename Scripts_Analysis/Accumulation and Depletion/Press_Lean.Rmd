@@ -24,13 +24,13 @@ library(plyr)
 
 
 ##PC
-data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -131,6 +131,7 @@ dataL1$stdresL1<-as.vector(scale(resid(submodL1)))
 ggplot(data=dataL1,aes(x=sample_day,y=lean_mass,color=photoperiod))+
   stat_summary(aes(y = lean_mass), fun.y=mean)+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  facet_wrap(~photoperiod)+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lean Mass")+
   ylab("lean Mass")+xlab("Sample Day 1")
@@ -164,6 +165,7 @@ dataLW$stdresLW<-as.vector(scale(resid(submodLW)))
 ggplot(data=dataLW,aes(x=sample_day,y=lean_mass,color=photoperiod))+
   stat_summary(aes(y = lean_mass), fun.y=mean)+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  facet_wrap(~photoperiod)+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lean Mass")+
   ylab("lean Mass")+xlab("Sample Day W")
@@ -182,7 +184,7 @@ dataLeD=subset(dataLeD,photoperiod==12)
 dataLeD=subset(dataLeD,lean_mass>=0)
 #dataLeD=subset(dataLeD,lean_mass<=0.1000)
 count(dataLeD$treat)
-dataLeD=subset(dataLeD,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+dataLeD=subset(dataLeD,sample_day=="1"| sample_day=="W")
 
 ggplot(data=dataLeD,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line",shape=18)+
@@ -191,7 +193,22 @@ ggplot(data=dataLeD,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
   theme_classic()+
   ggtitle("Diapause: Between Strain Comparison of Larvae lean Mass (UZ 117 : BE 107 larvae)")+
   ylab("lean Mass")+xlab("Sample Day")
-  
+
+dataLeDl=data1
+dataLeDl=subset(dataLeDl,photoperiod==12)
+dataLeDl=subset(dataLeDl,lean_mass>=0)
+#dataLeDl=subset(dataLeDl,lean_mass<=0.1000)
+count(dataLeDl$treat)
+dataLeDl=subset(dataLeDl,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+
+ggplot(data=dataLeDl,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("Diapause: Between Strain Comparison of Larvae lean Mass (UZ 117 : BE 107 larvae)")+
+  ylab("lean Mass")+xlab("Sample Day")
+
 ######################
 # Larva Lean Mass    #
 # Within  Treatments #
@@ -313,10 +330,9 @@ summary(submodLeDW20)
 dataLeDW20$stdresLeDW20<-as.vector(scale(resid(submodLeDW20)))
 
 ggplot(data=dataLeDW20,aes(x=sample_day,y=lean_mass,color=treat))+
-  stat_summary(aes(y = lean_mass,group=treat), fun.y=mean, geom="line")+
-  stat_summary(fun.y=median, fun.ymin=function(x) median(x) - sd(x), 
-               fun.ymax=function(x) median(x) + sd(x), geom="errorbar", width=0.1) +
-  facet_wrap(~photoperiod)+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lean Mass (UZ 20 : BE 6 larvae)")+
   ylab("lean Mass")+xlab("Sample Day W20")
@@ -346,10 +362,9 @@ summary(submodLeDW30)
 dataLeDW30$stdresLeDW30<-as.vector(scale(resid(submodLeDW30)))
 
 ggplot(data=dataLeDW30,aes(x=sample_day,y=lean_mass,color=treat))+
-  stat_summary(aes(y = lean_mass,group=treat), fun.y=mean, geom="line")+
-  stat_summary(fun.y=median, fun.ymin=function(x) median(x) - sd(x), 
-               fun.ymax=function(x) median(x) + sd(x), geom="errorbar", width=0.1) +
-  facet_wrap(~photoperiod)+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lean Mass (UZ 19 : BE 4 larvae)")+
   ylab("lean Mass")+xlab("Sample Day W30")
@@ -385,7 +400,7 @@ ggplot(data=dataLeND,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
 
 ##Mixed model with 'rep' as a random factor
 
-dataLeND1=subset(data1,photoperiod==12)
+dataLeND1=subset(data1,photoperiod==16)
 dataLeND1=subset(dataLeND1,lean_mass>=0)
 dataLeND1=subset(dataLeND1,sample_day=="1")
 count(dataLeND1$treat)
