@@ -32,14 +32,14 @@ library(doBy)
 
 
 ##PC
-#data=read_excel("/Users/jbrown/Documents/GitHub/Nutrition and Diapause/Lipids/Lipid Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "WANDER")
-data=subset(data,fifth_date!="NA")
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "WANDER")
+#data=subset(data,fifth_date!="NA")
 #fifth_date= <- species[match(unique(species$Taxa), species$Taxa),]
 
 #converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
@@ -65,7 +65,7 @@ unique(all$tray_id)
 
 unique(all$fiveday)#shows the structure of the data
 ```
-
+##UZ 0302 Wandering and Pupation tracking by day
 ```{r}
 ##############################
 ##### Wandering Larvae? ######
@@ -111,7 +111,7 @@ ggplot(data=data2a,aes(data2a$pday,fill=stage))+
   xlab("Days in 5th Instar")+
   ggtitle("UZ12 0302 Rate of Wander")
 ```
-
+##BE 3014 Wandering and Pupation tracking by day
 ```{r}
 ######### "BE16 0314" ################
 
@@ -157,7 +157,7 @@ ggplot(data=data3c,aes(data3c$pday))+
   xlab("Days in 5th Instar")+
   ggtitle("BE12 0314 Pupation Day")
 ```
-
+##BE 0320 Wandering and Pupation tracking by day
 ```{r}
 ######### "BE12 0320" ################
 
@@ -168,7 +168,7 @@ data4=subset(all,tray_id=="BE12 0320")
 ggplot(data=data4,aes(data4$wday))+
   geom_histogram(stat="count",binwidth=1, position="dodge")+
   xlab("Days in 5th Instar")+
-  ggtitle("BE12 0320 Rate of Wander")
+  ggtitle("BE12 0320 Wandering Day")
 
 
 data4a=subset(all,tray_id=="BE12 0320")
@@ -178,7 +178,7 @@ data4a=subset(all,tray_id=="BE12 0320")
 ggplot(data=data4a,aes(data4a$pday))+
   geom_histogram(stat="count",binwidth=1, position="dodge")+
   xlab("Days in 5th Instar")+
-  ggtitle("BE12 0314 Rate of Wander")
+  ggtitle("BE12 0314 Pupation Day")
 
 ######### "BE16 0320" ################
 
@@ -195,7 +195,7 @@ data4b=subset(all,tray_id=="BE16 0320")
 ggplot(data=data4b,aes(data4b$wday))+
   geom_histogram(stat="count",binwidth=1, position="dodge")+
   xlab("Days in 5th Instar")+
-  ggtitle("BE16 0320 Rate of Wander")
+  ggtitle("BE16 0320 Wandering Day")
 
 data4c=subset(all,tray_id=="BE16 0320")
 #data4c=subset(data4c,stage=="N"|stage=="Y")
@@ -210,32 +210,46 @@ data4c=subset(all,tray_id=="BE16 0320")
 ggplot(data=data4c,aes(data4c$pday))+
   geom_histogram(stat="count",binwidth=1, position="dodge")+
   xlab("Days in 5th Instar")+
-  ggtitle("BE16 0320 Rate of Wander")
+  ggtitle("BE16 0320 Pupation Day")
 
 ```
-
+##Stages of Life History across time
 `````{r}
 #############
+ggplot(all, aes(x=fiveday,fill=treat))+
+  geom_density(alpha=.3)+
+  xlab("Days to 5th Instar")+
+  ggtitle("Timing of 5th Instar")
 
 ggplot(all, aes(x=fiveday,fill=strain))+
   geom_density(alpha=.3)+
-  facet_grid(~treat)+
+  facet_grid(strain~treat)+
   xlab("Days to 5th Instar")+
   ggtitle("Timing of 5th Instar")
-  
-ggplot(all, aes(x=wday,fill=strain))+
+
+ggplot(all, aes(x=wday,fill=treat))+
   geom_density(alpha=.3)+
-  facet_grid(~ treat)+
   xlab("Days in 5th Instar")+
   ggtitle("Days to Wandering Stage")
 
+ggplot(all, aes(x=wday,fill=strain))+
+  geom_density(alpha=.3)+
+  facet_grid(strain~ treat)+
+  xlab("Days in 5th Instar")+
+  ggtitle("Days to Wandering Stage")
+
+ggplot(all, aes(x=pday, fill=treat))+
+  geom_density(alpha=.3)+
+  xlab("Days in 5th Instar")+
+  ggtitle("Days to Pupation")
+
 ggplot(all, aes(x=pday, fill=strain))+
   geom_density(alpha=.3)+
-  facet_grid(~treat)+
+  facet_grid(strain~treat)+
   xlab("Days in 5th Instar")+
   ggtitle("Days to Pupation")
 ```
-
+##RAW GRAPHS
 ```{r}
 ##############################
 ######### WANDERS ############
