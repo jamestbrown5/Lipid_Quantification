@@ -4,7 +4,7 @@ author: "James Brown"
 date: "4/20/2018"
 output: html_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -59,11 +59,7 @@ all$tray_id<-as.factor(all$tray_id)
 all$cell_id<-as.factor(all$cell_id)
 all$fifth_date<-as.factor(all$fifth_date)
 
-str(all)
-
-unique(all$tray_id)
-
-unique(all$fiveday)#shows the structure of the data
+all=subset(all,stage!="NA")
 ```
 ##UZ 0302 Wandering and Pupation tracking by day
 ```{r}
@@ -77,8 +73,9 @@ data1=subset(all,tray_id=="UZ16 0302")
 #data1=subset(data1,stage=="Y"| stage=="N")
 #data1=subset(data1,day=="wander_0327"|day=="wander_0328"|day=="wander_0329"|day=="wander_0330"|day=="wander_0331"|day=="wander_0401"|day=="wander_0402"|day=="wander_0403"|day=="wander_0404")
 
+
 ggplot(data=data1,aes(data1$wday))+
-  geom_histogram(stat="count",binwidth=1, position="dodge")+
+  geom_histogram(stat="count",binwidth=2, position="dodge")+
   xlab("Days in 5th Instar")+
   ggtitle("UZ16 0302 Wandering Day")
 
@@ -102,14 +99,15 @@ ggplot(data=data2,aes(data2$wday))+
   ggtitle("UZ12 0302 Wandering Day")
 
 
+
 data2a=subset(all,tray_id=="UZ12 0302")
 #data2a=subset(data2a,stage=="N"|stage=="P")
 #data2a=subset(data2a,day=="wander_0327"|day=="wander_0328"|day=="wander_0329"|day=="wander_0330"|day=="wander_0331"|day=="wander_0401"|day=="wander_0402"|day=="wander_0402"|day=="wander_0403"|day=="wander_0404"|day=="wander_0405"|day=="wander_0406"|day=="wander_0407"|day=="wander_0408"|day=="wander_0409")
 
-ggplot(data=data2a,aes(data2a$pday,fill=stage))+
+ggplot(data=data2a,aes(data2a$pday))+
   geom_histogram(stat="count",binwidth=1, position="dodge")+
   xlab("Days in 5th Instar")+
-  ggtitle("UZ12 0302 Rate of Wander")
+  ggtitle("UZ12 0302 Rate of Wander No Pupation during the tracking period")
 ```
 ##BE 3014 Wandering and Pupation tracking by day
 ```{r}

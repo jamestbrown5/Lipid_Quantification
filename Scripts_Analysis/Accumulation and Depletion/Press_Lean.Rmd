@@ -1,9 +1,9 @@
 ---
 title: "ECB Lean Mass Phenotype"
 editor_options: null
+  chunk_output_type: console
 chunk_output_type: inline
 output: html_document
-
 ---
 ### Goal: Rear UZ and BE at 23C at 16:8 and 12:12 L:D regimens (UZ12, UZ16, BE12, BE16). Track lean mass changes during the 5th instar, the wandering stage, and during diapause. 
 
@@ -86,6 +86,21 @@ datal=subset(datal,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_d
 
 ##Lean Mass Comparison Between Treatments
 ```{r}
+
+#Larva Lean Mass Plot
+dataLeU=data1
+#dataLeU=subset(dataLeU,treat=="UZ12"|treat=="UZ16")
+dataLeU=subset(dataLeU,lean_mass>=0.0001)
+dataLeU=subset(dataLeU,lean_mass<=0.1000)
+count(dataLeU$treat)
+dataLeU=subset(dataLeU,sample_day=="1" | sample_day=="W")
+ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
+  stat_summary(fun.y=mean, geom="line")+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  theme_classic()+
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  ylab("Lean Mass")+xlab("")
+
 #Larva Lean Mass Comparison Between Treatments
 dataL=data1
 dataL=subset(dataL,lean_mass>=0)

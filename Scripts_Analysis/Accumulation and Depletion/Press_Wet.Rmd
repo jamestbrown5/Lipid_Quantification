@@ -1,9 +1,9 @@
 ---
 title: "ECB Wet Mass Phenotype"
 editor_options: null
+  chunk_output_type: console
 chunk_output_type: inline
 output: html_document
-
 ---
 ### Goal: Rear UZ and BE at 23C at 16:8 and 12:12 L:D regimens (UZ12, UZ16, BE12, BE16). Track wet mass changes during the 5th instar, the wandering stage, and during diapause. 
 
