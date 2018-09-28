@@ -1,7 +1,7 @@
 ---
 title: "ECB Wet Mass Phenotype"
 editor_options: null
-  chunk_output_type: console
+  chunk_output_type: inline
 chunk_output_type: inline
 output: html_document
 ---
@@ -24,13 +24,13 @@ library(plyr)
 
 
 ##PC
-data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -85,6 +85,21 @@ datal=subset(datal,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_d
 ```
 ##Wet Mass Comparison Between Treatments
 ```{r}
+#Larva Wet Mass Plot
+dataWeU=data1
+#dataWeU=subset(dataWeU,treat=="UZ12"|treat=="UZ16")
+dataWeU=subset(dataWeU,wet_mass>=0.0001)
+dataWeU=subset(dataWeU,wet_mass<=0.1000)
+count(dataWeU$treat)
+dataWeU=subset(dataWeU,sample_day=="1" | sample_day=="W")
+ggplot(data=dataWeU,aes(x=sample_day,y=wet_mass,color=treat,group=treat))+
+  stat_summary(fun.y=mean, geom="line")+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  theme_classic()+
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  ggtitle("UZ: Within Strain Comparison of Larvae Wet Mass")+
+  ylab("Wet Mass")+xlab("")
+
 #Larva Wet Mass Comparison Between Treatments
 dataWet=data1
 dataWet=subset(dataWet,wet_mass>=0)
