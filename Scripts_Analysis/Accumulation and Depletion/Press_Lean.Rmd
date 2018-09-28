@@ -24,13 +24,13 @@ library(plyr)
 
 
 ##PC
-#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -100,6 +100,21 @@ ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
   theme_classic()+
   scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
   ylab("Lean Mass")+xlab("")
+
+##Compare BE12 to UZ 16
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
+## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
+
+dataUB=subset(dataLeU,treat=="BE12"|treat=="UZ16")
+mixedUB=lmer(lean_mass ~ photoperiod + (1|rep) ,data=dataUB, REML = TRUE)
+summary(mixedUB)
+plot(mixedUB)
+##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
+submodUB=lmer(lean_mass ~ (1|rep),data=dataUB, REML = TRUE)
+summary(submodUB)
+
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLW$stdresLW<-as.vector(scale(resid(submodLW)))
 
 #Larva Lean Mass Comparison Between Treatments
 dataL=data1
@@ -397,6 +412,11 @@ ggplot(data=dataLeDW30,aes(x=sample_day,y=lean_mass,color=treat))+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lean Mass (UZ 19 : BE 4 larvae)")+
   ylab("lean Mass")+xlab("Sample Day W30")
+
+dataLeDU=subset(dataLeDl,strain=="UZ")
+dataLeDU=subset(dataLeDU,photoperiod!="16")
+mF=lm(lipid_mass~sample_day,data=dataLeDU)
+summary(mF)
 ```
 
 ##Lean Mass Comparison Within Non Diapause Treatment
@@ -462,7 +482,7 @@ ggplot(data=dataLeND1,aes(x=sample_day,y=lean_mass,color=treat))+
 
 ##Mixed model with 'rep' as a random factor
 
-dataLeNDW=subset(data1,photoperiod==12)
+dataLeNDW=subset(data1,photoperiod==16)
 dataLeNDW=subset(dataLeNDW,lean_mass>=0)
 dataLeNDW=subset(dataLeNDW,sample_day=="W")
 
