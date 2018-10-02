@@ -24,13 +24,13 @@ library(plyr)
 
 
 ##PC
-data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -206,8 +206,8 @@ ggplot(data=dataLW,aes(x=sample_day,y=lean_mass,color=photoperiod))+
 #Larva Lean Mass Plot
 dataLeU=data1
 #dataLeU=subset(dataLeU,treat=="UZ12"|treat=="UZ16")
-dataLeU=subset(dataLeU,lean_mass>=0.0001)
-dataLeU=subset(dataLeU,lean_mass<=0.1000)
+dataLeU=subset(dataLeU,lean_mass>=0)
+#dataLeU=subset(dataLeU,lean_mass<=0.1000)
 count(dataLeU$treat)
 dataLeU=subset(dataLeU,sample_day=="1" | sample_day=="W")
 ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
