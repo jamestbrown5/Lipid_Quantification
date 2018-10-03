@@ -72,7 +72,7 @@ ggplot(all, aes(x=wday,fill=treat,group=treat))+
   scale_fill_manual(values=c("12"="blue","16"="green"))+
   ggtitle("Days to Wandering Stage")
 
-modtreat=lmer(wday~treat+(1|cohort),all)
+modtreat=lmer(wday~treat*strain+(1|cohort),all)
 plot(modtreat)
 summary(modtreat)
 

@@ -106,7 +106,7 @@ ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
 
 dataUB=subset(dataLeU,treat=="BE12"|treat=="UZ16")
-mixedUB=lmer(lean_mass ~ photoperiod + (1|rep) ,data=dataUB, REML = TRUE)
+mixedUB=lmer(lean_mass ~ strain*photoperiod + (1|rep) ,data=dataUB, REML = TRUE)
 summary(mixedUB)
 plot(mixedUB)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
@@ -148,7 +148,7 @@ dataL1=subset(dataL1,lean_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod Does NOT SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedL1=lmer(lean_mass ~ photoperiod + (1|rep) ,data=dataL1, REML = TRUE)
+mixedL1=lmer(lean_mass ~ strain*photoperiod + (1|rep) ,data=dataL1, REML = TRUE)
 summary(mixedL1)
 plot(mixedL1)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
@@ -182,7 +182,7 @@ dataLW=subset(dataLW,lean_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLW=lmer(lean_mass ~ photoperiod + (1|rep) ,data=dataLW, REML = TRUE)
+mixedLW=lmer(lean_mass ~ strain*photoperiod + (1|rep) ,data=dataLW, REML = TRUE)
 summary(mixedLW)
 plot(mixedLW)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass

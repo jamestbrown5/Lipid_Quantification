@@ -118,7 +118,7 @@ dataL1=subset(dataL1,lipid_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod Does NOT SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedL1=lmer(lipid_mass ~ photoperiod + (1|rep) ,data=dataL1, REML = TRUE)
+mixedL1=lmer(lipid_mass ~ photoperiod*strain + lean_mass + (1|rep) ,data=dataL1, REML = TRUE)
 summary(mixedL1)
 plot(mixedL1)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -152,7 +152,7 @@ dataLW=subset(dataLW,lipid_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedLW=lmer(lipid_mass ~ photoperiod + (1|rep) ,data=dataLW, REML = TRUE)
+mixedLW=lmer(lipid_mass ~ photoperiod*strain + lean_mass + (1|rep) ,data=dataLW, REML = TRUE)
 summary(mixedLW)
 plot(mixedLW)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -210,7 +210,7 @@ ggplot(data=dataWeDl,aes(x=sample_day,y=lipid_mass,group=treat,color=treat))+
   ylab("lipid Mass")+xlab("Sample Day")
 
 ######################
-# Larva Lipid Mass    #
+# Larva Lipid Mass   #
 # Within  Treatments #
 ###### Day 1 #########
 
@@ -223,7 +223,7 @@ count(dataWeD1$treat)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeD1=lmer(lipid_mass ~  strain + (1|rep),data=dataWeD1, REML = TRUE)
+mixedWeD1=lmer(lipid_mass ~  strain*photoperiod + (1|rep),data=dataWeD1, REML = TRUE)
 summary(mixedWeD1)
 plot(mixedWeD1)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -288,7 +288,7 @@ dataWeDW15=subset(dataWeDW15,lipid_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeDW15=lmer(lipid_mass ~ strain + (1|rep) ,data=dataWeDW15, REML = TRUE)
+mixedWeDW15=lmer(lipid_mass ~ strain*photoperiod + (1|rep) ,data=dataWeDW15, REML = TRUE)
 summary(mixedWeDW15)
 plot(mixedWeDW15)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -319,7 +319,7 @@ dataWeDW20=subset(dataWeDW20,lipid_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeDW20=lmer(lipid_mass ~ strain + (1|rep) ,data=dataWeDW20, REML = TRUE)
+mixedWeDW20=lmer(lipid_mass ~ strain*photoperiod + (1|rep) ,data=dataWeDW20, REML = TRUE)
 summary(mixedWeDW20)
 plot(mixedWeDW20)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -351,7 +351,7 @@ dataWeDW30=subset(dataWeDW30,lipid_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeDW30=lmer(lipid_mass ~ strain + (1|rep) ,data=dataWeDW30, REML = TRUE)
+mixedWeDW30=lmer(lipid_mass ~ strain*photoperiod + (1|rep) ,data=dataWeDW30, REML = TRUE)
 summary(mixedWeDW30)
 plot(mixedWeDW30)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
