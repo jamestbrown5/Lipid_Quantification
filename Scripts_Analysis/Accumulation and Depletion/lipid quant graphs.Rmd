@@ -32,13 +32,13 @@ library(doBy)
 
 
 ##PC
-#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "WANDER")
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "WANDER")
 #data=subset(data,fifth_date!="NA")
 #fifth_date= <- species[match(unique(species$Taxa), species$Taxa),]
 
@@ -94,19 +94,19 @@ summary(modaov12)
 
 
 all16=subset(all,treat==16)
-ggplot(all16, aes(x=wday,fill=strain))+
-  geom_density(alpha=.3,adjust=2.5)+
+ggplot(all, aes(x=strain,y=wday))+
+  stat_summary(aes(y = wday), fun.y=mean, geom="point", position="dodge",size=4)+
+  stat_summary(fun.y=median, fun.ymin=function(x) median(x) - sd(x), 
+               fun.ymax=function(x) median(x) + sd(x), geom="errorbar",position="dodge", width=0.1) +
+  facet_wrap(~treat)+
   xlab("Days in 5th Instar")+
   theme_classic()+
-  geom_vline(xintercept = 6)+
-  scale_x_continuous(breaks = seq(0, 12, by=1), limits=c(0,12))+
-  scale_fill_manual(values=c(UZ="purple",BE="orange"))+
   ggtitle("Non Diapause Conditions: Days to Wandering Stage")
 
-mod16=lmer(wday~strain+(1|cohort),all16)
+mod16=lmer(wday~strain*treat+(1|cohort),all)
 plot(mod16)
 summary(mod16)
-modaov16=aov(all16$wday~all16$strain)
+modaov16=aov(all$wday~all$strain)
 summary(modaov16)
 ```
 

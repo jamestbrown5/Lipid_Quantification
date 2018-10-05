@@ -57,7 +57,7 @@ data1=data[1:626, c("sample_day", "treat","sample_id","5th_date","cohort", "wet_
 #converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
 dataT=gather(data,traits,measurement,wet_mass:lipid_mass)
 #str(dataT) #shows the structure of the data
-#str(data)
+str(data)
 ````
 
 ##Traits Plots
