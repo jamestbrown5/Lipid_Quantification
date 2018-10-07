@@ -186,14 +186,19 @@ dataWeD=subset(dataWeD,lipid_mass>=0)
 count(dataWeD$treat)
 dataWeD=subset(dataWeD,sample_day=="1"| sample_day=="W")
 
-ggplot(data=dataWeD,aes(x=sample_day,y=lipid_mass,group=treat,color=treat))+
-  stat_summary(fun.y=mean, geom="line",shape=18)+
+ggplot(data=dataWeD,aes(x=sample_day,y=lipid_mass,group=strain,color=strain))+
+  stat_summary(fun.y=mean, geom="line",size=2,shape=0)+
+  stat_summary(fun.y = "mean", size = 2, geom = "point")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
-  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
-  theme_classic()+
-  ggtitle("Diapause: Between Strain Comparison of Larvae lipid Mass (UZ 117 : BE 107 larvae)")+
-  ylab("lipid Mass")+xlab("Sample Day")
+  theme(axis.text  = element_text( vjust=0.5, size=16))+
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=2))+
+  theme(panel.background = element_blank())+
+  scale_color_manual(values=c(UZ="black",BE="grey"))+
+  ggtitle("Diapause: Between Strain Comparison of Larvae lipid Mass (UZ 117 : BE 107 larvae)")
 
+```
+
+```{r}
 dataWeDl=data1
 dataWeDl=subset(dataWeDl,photoperiod==12)
 dataWeDl=subset(dataWeDl,lipid_mass>=0)
@@ -223,7 +228,7 @@ count(dataWeD1$treat)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeD1=lmer(lipid_mass ~  strain*photoperiod + (1|rep),data=dataWeD1, REML = TRUE)
+mixedWeD1=lmer(lipid_mass ~  strain + lean_mass + (1|rep),data=dataWeD1, REML = TRUE)
 summary(mixedWeD1)
 plot(mixedWeD1)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -256,7 +261,7 @@ dataWeDW=subset(dataWeDW,sample_day=="W")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeDW=lmer(lipid_mass ~  strain + (1|rep),data=dataWeDW, REML = TRUE)
+mixedWeDW=lmer(lipid_mass ~  strain+lean_mass + (1|rep),data=dataWeDW, REML = TRUE)
 summary(mixedWeDW)
 plot(mixedWeDW)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -288,7 +293,7 @@ dataWeDW15=subset(dataWeDW15,lipid_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeDW15=lmer(lipid_mass ~ strain*photoperiod + (1|rep) ,data=dataWeDW15, REML = TRUE)
+mixedWeDW15=lmer(lipid_mass ~ strain+lean_mass + (1|rep) ,data=dataWeDW15, REML = TRUE)
 summary(mixedWeDW15)
 plot(mixedWeDW15)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -319,7 +324,7 @@ dataWeDW20=subset(dataWeDW20,lipid_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeDW20=lmer(lipid_mass ~ strain*photoperiod + (1|rep) ,data=dataWeDW20, REML = TRUE)
+mixedWeDW20=lmer(lipid_mass ~ strain+lean_mass + (1|rep) ,data=dataWeDW20, REML = TRUE)
 summary(mixedWeDW20)
 plot(mixedWeDW20)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -351,7 +356,7 @@ dataWeDW30=subset(dataWeDW30,lipid_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedWeDW30=lmer(lipid_mass ~ strain*photoperiod + (1|rep) ,data=dataWeDW30, REML = TRUE)
+mixedWeDW30=lmer(lipid_mass ~ strain+lean_mass + (1|rep) ,data=dataWeDW30, REML = TRUE)
 summary(mixedWeDW30)
 plot(mixedWeDW30)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
