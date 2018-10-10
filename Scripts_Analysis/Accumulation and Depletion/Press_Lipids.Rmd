@@ -24,13 +24,13 @@ library(plyr)
 
 
 ##PC
-#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -92,9 +92,10 @@ dataLipid=subset(dataLipid,lipid_mass>=0)
 count(dataLipid$treat)
 dataLipid=subset(dataLipid,sample_day=="1"| sample_day=="W")
 
-ggplot(data=dataLipid,aes(x=sample_day,y=lipid_mass,group=photoperiod,color=photoperiod))+
+ggplot(data=dataLipid,aes(x=sample_day,y=lipid_mass,group=treat,color=strain))+
   stat_summary(aes(y = lipid_mass), fun.y=mean, geom="line")+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05)+
+  scale_color_manual(values=c(UZ="red",BE="darkblue"))+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lipid Mass (UZ 178 : BE 164 larvae)")+
   ylab("lipid Mass")+xlab("Sample Day")
