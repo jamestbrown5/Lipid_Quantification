@@ -98,7 +98,7 @@ ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
   stat_summary(fun.y=mean, geom="line")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   theme_classic()+
-  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  scale_color_manual(values=c(UZ12="red",UZ16="purple",BE12="orange",BE16="green"))+
   ylab("Lean Mass")+xlab("")
 
 ##Compare BE12 to UZ 16
@@ -106,15 +106,15 @@ ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
 
 dataUB=subset(dataLeU,treat=="BE12"|treat=="UZ16")
-mixedUB=lmer(lean_mass ~ strain*photoperiod + (1|rep) ,data=dataUB, REML = TRUE)
+mixedUB=lmer(lean_mass ~ strain*photoperiod + (1|rep/cohort) ,data=dataUB, REML = TRUE)
 summary(mixedUB)
 plot(mixedUB)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodUB=lmer(lean_mass ~ (1|rep),data=dataUB, REML = TRUE)
+submodUB=lmer(lean_mass ~ (1|rep/cohort),data=dataUB, REML = TRUE)
 summary(submodUB)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
-dataLW$stdresLW<-as.vector(scale(resid(submodLW)))
+#dataLW$stdresLW<-as.vector(scale(resid(submodLW)))
 
 #Larva Lean Mass Comparison Between Treatments
 dataL=data1
@@ -148,11 +148,11 @@ dataL1=subset(dataL1,lean_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod Does NOT SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedL1=lmer(lean_mass ~ strain*photoperiod + (1|rep) ,data=dataL1, REML = TRUE)
+mixedL1=lmer(lean_mass ~ strain*photoperiod + (1|rep/cohort) ,data=dataL1, REML = TRUE)
 summary(mixedL1)
 plot(mixedL1)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodL1=lmer(lean_mass ~ (1|rep),data=dataL1, REML = TRUE)
+submodL1=lmer(lean_mass ~ (1|rep/cohort),data=dataL1, REML = TRUE)
 summary(submodL1)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -182,11 +182,11 @@ dataLW=subset(dataLW,lean_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLW=lmer(lean_mass ~ strain*photoperiod + (1|rep) ,data=dataLW, REML = TRUE)
+mixedLW=lmer(lean_mass ~ strain*photoperiod + (1|rep/cohort) ,data=dataLW, REML = TRUE)
 summary(mixedLW)
 plot(mixedLW)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLW=lmer(lean_mass ~ (1|rep),data=dataLW, REML = TRUE)
+submodLW=lmer(lean_mass ~ (1|rep/cohort),data=dataLW, REML = TRUE)
 summary(submodLW)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -267,11 +267,11 @@ count(dataLeD1$treat)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeD1=lmer(lean_mass ~  strain + (1|rep),data=dataLeD1, REML = TRUE)
+mixedLeD1=lmer(lean_mass ~  strain + (1|rep/cohort),data=dataLeD1, REML = TRUE)
 summary(mixedLeD1)
 plot(mixedLeD1)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeD1=lmer(lean_mass ~ (1|rep),data=dataLeD1, REML = TRUE)
+submodLeD1=lmer(lean_mass ~ (1|rep/cohort),data=dataLeD1, REML = TRUE)
 summary(submodLeD1)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -304,7 +304,7 @@ mixedLeDW=lmer(lean_mass ~  strain + (1|rep),data=dataLeDW, REML = TRUE)
 summary(mixedLeDW)
 plot(mixedLeDW)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeDW=lmer(lean_mass ~ (1|rep),data=dataLeDW, REML = TRUE)
+submodLeDW=lmer(lean_mass ~ (1|rep/cohort),data=dataLeDW, REML = TRUE)
 summary(submodLeDW)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -332,11 +332,11 @@ dataLeDW15=subset(dataLeDW15,lean_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeDW15=lmer(lean_mass ~ strain + (1|rep) ,data=dataLeDW15, REML = TRUE)
+mixedLeDW15=lmer(lean_mass ~ strain + (1|rep/cohort) ,data=dataLeDW15, REML = TRUE)
 summary(mixedLeDW15)
 plot(mixedLeDW15)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeDW15=lmer(lean_mass ~ (1|rep),data=dataLeDW15, REML = TRUE)
+submodLeDW15=lmer(lean_mass ~ (1|rep/cohort),data=dataLeDW15, REML = TRUE)
 summary(submodLeDW15)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -363,11 +363,11 @@ dataLeDW20=subset(dataLeDW20,lean_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeDW20=lmer(lean_mass ~ strain + (1|rep) ,data=dataLeDW20, REML = TRUE)
+mixedLeDW20=lmer(lean_mass ~ strain + (1|rep/cohort) ,data=dataLeDW20, REML = TRUE)
 summary(mixedLeDW20)
 plot(mixedLeDW20)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeDW20=lmer(lean_mass ~ (1|rep),data=dataLeDW20, REML = TRUE)
+submodLeDW20=lmer(lean_mass ~ (1|rep/cohort),data=dataLeDW20, REML = TRUE)
 summary(submodLeDW20)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -395,11 +395,11 @@ dataLeDW30=subset(dataLeDW30,lean_mass>="0")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeDW30=lmer(lean_mass ~ strain + (1|rep) ,data=dataLeDW30, REML = TRUE)
+mixedLeDW30=lmer(lean_mass ~ strain + (1|rep/cohort) ,data=dataLeDW30, REML = TRUE)
 summary(mixedLeDW30)
 plot(mixedLeDW30)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeDW30=lmer(lean_mass ~ (1|rep),data=dataLeDW30, REML = TRUE)
+submodLeDW30=lmer(lean_mass ~ (1|rep/cohort),data=dataLeDW30, REML = TRUE)
 summary(submodLeDW30)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -456,11 +456,11 @@ count(dataLeND1$treat)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeND1=lmer(lean_mass ~  strain + (1|rep),data=dataLeND1, REML = TRUE)
+mixedLeND1=lmer(lean_mass ~  strain + (1|rep/cohort),data=dataLeND1, REML = TRUE)
 summary(mixedLeND1)
 plot(mixedLeND1)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeND1=lmer(lean_mass ~ (1|rep),data=dataLeND1, REML = TRUE)
+submodLeND1=lmer(lean_mass ~ (1|rep/cohort),data=dataLeND1, REML = TRUE)
 summary(submodLeND1)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -489,11 +489,11 @@ dataLeNDW=subset(dataLeNDW,sample_day=="W")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeNDW=lmer(lean_mass ~  strain + (1|rep),data=dataLeNDW, REML = TRUE)
+mixedLeNDW=lmer(lean_mass ~  strain + (1|rep/cohort),data=dataLeNDW, REML = TRUE)
 summary(mixedLeNDW)
 plot(mixedLeNDW)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeNDW=lmer(lean_mass ~ (1|rep),data=dataLeNDW, REML = TRUE)
+submodLeNDW=lmer(lean_mass ~ (1|rep/cohort),data=dataLeNDW, REML = TRUE)
 summary(submodLeNDW)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -547,11 +547,11 @@ dataLeBED1=subset(dataLeBED1,sample_day=="1")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeBED1=lmer(lean_mass ~  treat + (1|rep),data=dataLeBED1, REML = TRUE)
+mixedLeBED1=lmer(lean_mass ~  treat + (1|rep/cohort),data=dataLeBED1, REML = TRUE)
 summary(mixedLeBED1)
 plot(mixedLeBED1)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeBED1=lmer(lean_mass ~ (1|rep),data=dataLeBED1, REML = TRUE)
+submodLeBED1=lmer(lean_mass ~ (1|rep/cohort),data=dataLeBED1, REML = TRUE)
 summary(submodLeBED1)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -580,11 +580,11 @@ dataLeBEDW=subset(dataLeBEDW,sample_day=="W")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeBEDW=lmer(lean_mass ~  treat + (1|rep),data=dataLeBEDW, REML = TRUE)
+mixedLeBEDW=lmer(lean_mass ~  treat + (1|rep/cohort),data=dataLeBEDW, REML = TRUE)
 summary(mixedLeBEDW)
 plot(mixedLeBEDW)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeBEDW=lmer(lean_mass ~ (1|rep),data=dataLeBEDW, REML = TRUE)
+submodLeBEDW=lmer(lean_mass ~ (1|rep/cohort),data=dataLeBEDW, REML = TRUE)
 summary(submodLeBEDW)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -638,11 +638,11 @@ dataLeUZD1=subset(dataLeUZD1,sample_day=="1")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeUZD1=lmer(lean_mass ~  treat + (1|rep),data=dataLeUZD1, REML = TRUE)
+mixedLeUZD1=lmer(lean_mass ~  treat + (1|rep/cohort),data=dataLeUZD1, REML = TRUE)
 summary(mixedLeUZD1)
 plot(mixedLeUZD1)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeUZD1=lmer(lean_mass ~ (1|rep),data=dataLeUZD1, REML = TRUE)
+submodLeUZD1=lmer(lean_mass ~ (1|rep/cohort),data=dataLeUZD1, REML = TRUE)
 summary(submodLeUZD1)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
@@ -671,11 +671,11 @@ dataLeUZDW=subset(dataLeUZDW,sample_day=="W")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLeUZDW=lmer(lean_mass ~  treat + (1|rep),data=dataLeUZDW, REML = TRUE)
+mixedLeUZDW=lmer(lean_mass ~  treat + (1|rep/cohort),data=dataLeUZDW, REML = TRUE)
 summary(mixedLeUZDW)
 plot(mixedLeUZDW)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
-submodLeUZDW=lmer(lean_mass ~ (1|rep),data=dataLeUZDW, REML = TRUE)
+submodLeUZDW=lmer(lean_mass ~ (1|rep/cohort),data=dataLeUZDW, REML = TRUE)
 summary(submodLeUZDW)
 
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
