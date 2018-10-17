@@ -67,7 +67,7 @@ all=subset(all,stage!="NA")
 ggplot(all, aes(x=wday,fill=strain,group=strain))+
   geom_density(alpha=.2,adjust=2)+
   xlab("Days in 5th Instar")+
-  facet_grid(strain~treat)+
+  facet_wrap(~treat)+
   theme_classic()+
   scale_x_continuous(breaks = seq(0, 17, by=1), limits=c(0,17))+
   scale_fill_manual(values=c("BE"="blue","UZ"="red"))+
