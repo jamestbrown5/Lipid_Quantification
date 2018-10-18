@@ -24,13 +24,13 @@ library(plyr)
 
 
 ##PC
-data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -57,6 +57,7 @@ data1=subset(data1,lipid_mass<=0.0200)
 dataT=gather(data,traits,measurement,wet_mass:lipid_mass)
 #str(dataT) #shows the structure of the data
 #str(data)
+
 ````
 
 ##Traits Plots
@@ -79,9 +80,9 @@ ggplot(data=dataTr,aes(x=sample_day,y=measurement,fill=traits))+
 #Larva lean Mass Plot
 datal=data1
 datal=subset(datal,lean_mass>=0)
-datal=subset(datal,lean_mass<=0.0200)
-count(datal$treat)
+datal=subset(datal,lean_mass<=0.0300)
 datal=subset(datal,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+count(datal$treat)
 ```
 ##Lipid Mass Comparison Between Treatments
 ```{r}

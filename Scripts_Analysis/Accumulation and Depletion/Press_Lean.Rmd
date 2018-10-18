@@ -65,7 +65,7 @@ dataT=gather(data,traits,measurement,wet_mass:lipid_mass)
 dataTr=dataT
 dataTr=subset(dataTr,measurement!="NA")
 dataTr=subset(dataTr,photoperiod!="NA")
-count(dataTr$treat)
+
 dataTr=subset(dataTr,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
 dataTr=subset(dataTr,measurement>=0)
 dataTr=subset(dataTr,measurement<=0.1000)
@@ -77,11 +77,6 @@ ggplot(data=dataTr,aes(x=sample_day,y=measurement,fill=traits))+
   ylab("Traits")+xlab("Sample Day")
 
 #Larva lean Mass Plot
-datal=data1
-datal=subset(datal,lean_mass>=0)
-datal=subset(datal,lean_mass<=0.1000)
-count(datal$treat)
-datal=subset(datal,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
 ```
 
 ##Lean Mass Comparison Between Treatments
