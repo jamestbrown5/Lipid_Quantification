@@ -64,10 +64,8 @@ all=subset(all,stage!="NA")
 
 ##Distribution plots of larvae in the 5th instar by the amount of days it takes to reach the wandering stage with Linear Mixed Model analysis
 ```{r}
-ggplot(all, aes(x=wday,fill=strain,group=strain))+
+ggplot(all, aes(x=wday,color=strain,group=strain))+
   geom_density(alpha=.2,adjust=2)+
-  xlab("Days in 5th Instar")+
-  facet_wrap(~treat)+
   theme_classic()+
   scale_x_continuous(breaks = seq(0, 17, by=1), limits=c(0,17))+
   scale_fill_manual(values=c("BE"="blue","UZ"="red"))+

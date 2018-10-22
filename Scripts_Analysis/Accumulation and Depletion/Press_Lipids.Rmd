@@ -21,7 +21,7 @@ library(tidyr)
 library(MASS)
 library(doBy)
 library(plyr)
-
+library(numDeriv)
 
 ##PC
 #data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
@@ -101,6 +101,7 @@ ggplot(data=dataLipid,aes(x=sample_day,y=lipid_mass,group=treat,color=strain))+
   ggtitle("Treatment Comparison of Larvae lipid Mass (UZ 178 : BE 164 larvae)")+
   ylab("lipid Mass")+xlab("Sample Day")
 
+#mod=lmer(lipid_mass ~ photoperiod*strain *sample_day*treat*"5th_date"*lean_mass * (1|rep/cohort) ,data=data1, REML = TRUE)
 
 
 
@@ -120,7 +121,19 @@ dataL1=subset(dataL1,lipid_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod Does NOT SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedL1=lmer(lipid_mass ~ photoperiod*strain + lean_mass + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL1=lmer(lipid_mass ~ photoperiod+lean_mass + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixed=lmer(lipid_mass ~ photoperiod+strain+lean_mass + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL2=lmer(lipid_mass ~ photoperiod+lean_mass + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL3=lmer(lipid_mass ~ strain+lean_mass + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL4=lmer(lipid_mass ~ lean_mass +(1|rep/cohort) ,data=dataL1, REML = TRUE)
+lmerTest::step(mixedL1)
+
+
+
+
+
+
+
 summary(mixedL1)
 plot(mixedL1)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -155,7 +168,7 @@ dataLW=subset(dataLW,lipid_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
-mixedLW=lmer(lipid_mass ~ photoperiod*strain + lean_mass + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixedLW=lmer(lipid_mass ~ photoperiod + strain + (1|rep/cohort) ,data=dataLW, REML = TRUE)
 summary(mixedLW)
 plot(mixedLW)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
@@ -172,6 +185,17 @@ ggplot(data=dataLW,aes(x=sample_day,y=lipid_mass,color=photoperiod))+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lipid Mass")+
   ylab("lipid Mass")+xlab("Sample Day W")
+
+mixedL5=lmer(lipid_mass ~ photoperiod*strain+lean_mass + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixed2=lmer(lipid_mass ~ photoperiod+strain+lean_mass + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixedL6=lmer(lipid_mass ~ photoperiod+lean_mass + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixedL7=lmer(lipid_mass ~ strain+lean_mass + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixedL8=lmer(lipid_mass ~ lean_mass +(1|rep/cohort) ,data=dataLW, REML = TRUE)
+anova(mixedL5,mixedL6,mixedL7,mixedL8,mixed2)
+
+step(mixedL1)
+step(mixedL5)
+step(mixed1)
 ```
 
 ##Lipid Mass Comparison Within Diapause Treatment and Between UZ12 and BE12 
@@ -208,6 +232,8 @@ dataWeDl=subset(dataWeDl,lipid_mass>=0)
 #dataWeDl=subset(dataWeDl,lipid_mass<=0.1000)
 count(dataWeDl$treat)
 dataWeDl=subset(dataWeDl,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+dataWeBE=subset(dataWeDl,strain=="BE")
+dataWeUZ=subset(dataWeDl,strain=="UZ")
 
 ggplot(data=dataWeDl,aes(x=sample_day,y=lipid_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line",shape=18)+
@@ -216,6 +242,13 @@ ggplot(data=dataWeDl,aes(x=sample_day,y=lipid_mass,group=treat,color=treat))+
   theme_classic()+
   ggtitle("Diapause: Between Strain Comparison of Larvae lipid Mass (UZ 117 : BE 107 larvae)")+
   ylab("lipid Mass")+xlab("Sample Day")
+
+moh=lmer(formula = lipid_mass ~ strain + sample_day + (1 | rep/cohort), data =dataWeDl, REML = TRUE)
+mof=lmer(formula = lipid_mass ~ sample_day + (1 | rep/cohort), data =dataWeBE, REML = TRUE)
+mog=lmer(formula = lipid_mass ~ sample_day + (1 | rep/cohort), data =dataWeUZ, REML = TRUE)
+summary(moh)
+summary(mof)
+summary(mog)
 
 ######################
 # Larva Lipid Mass   #
@@ -259,8 +292,10 @@ ggplot(data=dataWeD1,aes(x=sample_day,y=lipid_mass,color=treat))+
 
 dataWeDW=subset(data1,photoperiod==12)
 dataWeDW=subset(dataWeDW,lipid_mass>=0)
-dataWeDW=subset(dataWeDW,sample_day=="W")
+#dataWeDW=subset(dataWeDW,sample_day=="W")
 
+mixed1=lmer(lipid_mass ~ strain*sample_day+lean_mass + (1|rep/cohort) ,data=dataWeDW, REML = TRUE)
+step(mixed1)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
@@ -376,6 +411,51 @@ ggplot(data=dataWeDW30,aes(x=sample_day,y=lipid_mass,color=treat))+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lipid Mass (UZ 19 : BE 4 larvae)")+
   ylab("lipid Mass")+xlab("Sample Day W30")
+
+
+dataLiDBE=subset(data1,strain=="BE")
+dataLiDBE=subset(dataLiDBE,photoperiod=="12")
+dataLiDBE=subset(dataLiDBE,sample_day!="1")
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
+## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
+mixedLiDBE=lmer(lipid_mass ~ sample_day + (1|rep/cohort) ,data=dataLiDBE, REML = TRUE)
+summary(mixedLiDBE)
+plot(mixedLiDBE)
+##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
+submodLiDBE=lmer(lipid_mass ~ (1|rep/cohort),data=dataLiDBE, REML = TRUE)
+summary(submodLiDBE)
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLiDBE$stdresLiDBE<-as.vector(scale(resid(submodLiDBE)))
+
+ggplot(data=dataLiDBE,aes(x=sample_day,y=lipid_mass,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("BE strain: Change in Lipid Mass During Diapause")+
+  ylab("lipid Mass")+xlab("Sample Days")
+
+dataLiDBE=subset(data1,strain=="UZ")
+dataLiDBE=subset(dataLiDBE,photoperiod=="12")
+dataLiDBE=subset(dataLiDBE,sample_day!="1")
+#this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
+## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
+mixedLiDBE=lmer(lipid_mass ~ sample_day + (1|rep/cohort) ,data=dataLiDBE, REML = TRUE)
+summary(mixedLiDBE)
+plot(mixedLiDBE)
+##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
+submodLiDBE=lmer(lipid_mass ~ (1|rep/cohort),data=dataLiDBE, REML = TRUE)
+summary(submodLiDBE)
+## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
+dataLiDBE$stdresLiDBE<-as.vector(scale(resid(submodLiDBE)))
+
+ggplot(data=dataLiDBE,aes(x=sample_day,y=lipid_mass,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme_classic()+
+  ggtitle("UZ strain: Change in Lipid Mass During Diapause")+
+  ylab("lipid Mass")+xlab("Sample Days")
 ```
 
 ##Lipid Mass Comparison Within Non Diapause Treatment and Between UZ16 and BE16 

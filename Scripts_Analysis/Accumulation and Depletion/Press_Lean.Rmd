@@ -93,7 +93,7 @@ ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
   stat_summary(fun.y=mean, geom="line")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   theme_classic()+
-  scale_color_manual(values=c(UZ12="red",UZ16="purple",BE12="orange",BE16="green"))+
+  scale_color_manual(values=c(UZ12="red",UZ16="red",BE12="blue",BE16="blue"))+
   ylab("Lean Mass")+xlab("")
 
 ##Compare BE12 to UZ 16
@@ -101,7 +101,7 @@ ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
 
 dataUB=subset(dataLeU,treat=="BE12"|treat=="UZ16")
-mixedUB=lmer(lean_mass ~ strain*photoperiod + (1|rep/cohort) ,data=dataUB, REML = TRUE)
+mixedUB=lmer(lean_mass ~ strain+photoperiod + (1|rep/cohort) ,data=dataUB, REML = TRUE)
 summary(mixedUB)
 plot(mixedUB)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
@@ -137,13 +137,20 @@ ggplot(data=dataL,aes(x=sample_day,y=lean_mass,group=photoperiod,color=photoperi
 ###### Day 1 #########
 
 
-dataL1=subset(data,sample_day=="1")
+dataL1=subset(data1,sample_day=="1")
 dataL1=subset(dataL1,lean_mass>="0")
 dataL1=subset(dataL1,lean_mass<="0.07")
 
+mixedd=lmer(lean_mass ~ photoperiod*strain + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixed=lmer(lean_mass ~ photoperiod*strain + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL2=lmer(lean_mass ~ photoperiod + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL3=lmer(lean_mass ~ strain + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL4=lmer(lean_mass ~ (1|rep/cohort) ,data=dataL1, REML = TRUE)
+#anova(mixedL1,mixedL2,mixedL3,mixedL4,mixed)
+
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod Does NOT SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedL1=lmer(lean_mass ~ strain*photoperiod + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL1=lmer(lean_mass ~ strain+photoperiod + (1|rep/cohort) ,data=dataL1, REML = TRUE)
 summary(mixedL1)
 plot(mixedL1)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
@@ -177,7 +184,7 @@ dataLW=subset(dataLW,lean_mass<="0.07")
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedLW=lmer(lean_mass ~ strain*photoperiod + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixedLW=lmer(lean_mass ~ strain+photoperiod + (1|rep/cohort) ,data=dataLW, REML = TRUE)
 summary(mixedLW)
 plot(mixedLW)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
@@ -194,6 +201,18 @@ ggplot(data=dataLW,aes(x=sample_day,y=lean_mass,color=photoperiod))+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae lean Mass")+
   ylab("lean Mass")+xlab("Sample Day W")
+
+mixed8=lmer(lean_mass ~ photoperiod*strain + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixed2=lmer(lean_mass ~ photoperiod+strain + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixedL6=lmer(lean_mass ~ photoperiod + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixedL7=lmer(lean_mass ~ strain + (1|rep/cohort) ,data=dataLW, REML = TRUE)
+mixedL8=lmer(lean_mass ~ (1|rep/cohort) ,data=dataLW, REML = TRUE)
+#anova(mixedL5,mixedL6,mixedL7,mixedL8,mixed2)
+
+step(mixedd)
+step(mixed8)
+step(mixed9)
+
 ```
 
 ##Lean Mass Comparison Within Diapause Treatment
@@ -210,7 +229,8 @@ ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   theme_classic()+
   scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))
-  
+
+
 
 ######################
 #Larva lean Mass Plot#
@@ -239,14 +259,25 @@ dataLeDl=subset(dataLeDl,lean_mass>=0)
 #dataLeDl=subset(dataLeDl,lean_mass<=0.1000)
 count(dataLeDl$treat)
 dataLeDl=subset(dataLeDl,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+dataLeUZZ=subset(dataLeDl,strain=="UZ")
+dataLeBEE=subset(dataLeDl,strain=="BE")
 
 ggplot(data=dataLeDl,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line",shape=18)+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
-  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  scale_color_manual(values=c(UZ12="red",UZ16="red",BE12="blue",BE16="blue"))+
   theme_classic()+
   ggtitle("Diapause: Between Strain Comparison of Larvae lean Mass (UZ 117 : BE 107 larvae)")+
   ylab("lean Mass")+xlab("Sample Day")
+
+
+moa=lmer(formula = lean_mass ~ sample_day + strain+(1 | rep/cohort), data = dataLeDl, REML = TRUE)
+mod=lmer(formula = lean_mass ~ sample_day + (1 | rep/cohort), data = dataLeBEE, REML = TRUE)
+moc=lmer(formula = lean_mass ~ sample_day + (1 | rep/cohort), data = dataLeUZZ, REML = TRUE)
+summary(moa)
+summary(mod)
+summary(moc)
+
 
 ######################
 # Larva Lean Mass    #
@@ -290,7 +321,14 @@ ggplot(data=dataLeD1,aes(x=sample_day,y=lean_mass,color=treat))+
 
 dataLeDW=subset(data1,photoperiod==12)
 dataLeDW=subset(dataLeDW,lean_mass>=0)
-dataLeDW=subset(dataLeDW,sample_day=="W")
+#dataLeDW=subset(dataLeDW,sample_day=="W")
+
+mixed9=lmer(lean_mass ~ strain*sample_day + (1|rep/cohort) ,data=dataLeDW, REML = TRUE)
+mixed3=lmer(lean_mass ~ strain+sample_day + (1|rep/cohort) ,data=dataLeDW, REML = TRUE)
+mixedL10=lmer(lean_mass ~ sample_day + (1|rep/cohort) ,data=dataLeDW, REML = TRUE)
+mixedL11=lmer(lean_mass ~ strain + (1|rep/cohort) ,data=dataLeDW, REML = TRUE)
+mixedL12=lmer(lean_mass ~ (1|rep/cohort) ,data=dataLeDW, REML = TRUE)
+#anova(mixedL9,mixedL10,mixedL11,mixedL12,mixed3)
 
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
@@ -410,7 +448,7 @@ ggplot(data=dataLeDW30,aes(x=sample_day,y=lean_mass,color=treat))+
 
 dataLeDU=subset(dataLeDl,strain=="UZ")
 dataLeDU=subset(dataLeDU,photoperiod!="16")
-mF=lm(lipid_mass~sample_day,data=dataLeDU)
+mF=lm(lean~sample_day,data=dataLeDU)
 summary(mF)
 ```
 
