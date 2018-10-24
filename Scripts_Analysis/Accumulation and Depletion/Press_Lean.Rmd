@@ -89,10 +89,12 @@ dataLeU=subset(dataLeU,lean_mass>=0.0001)
 dataLeU=subset(dataLeU,lean_mass<=0.1000)
 count(dataLeU$treat)
 dataLeU=subset(dataLeU,sample_day=="1" | sample_day=="W")
+dataLeU=subset(dataLeU,photoperiod=="16")
 ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
   stat_summary(fun.y=mean, geom="line")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   theme_classic()+
+  ylim(low=0.01, high=0.031)+
   scale_color_manual(values=c(UZ12="red",UZ16="red",BE12="blue",BE16="blue"))+
   ylab("Lean Mass")+xlab("")
 
@@ -137,11 +139,18 @@ ggplot(data=dataL,aes(x=sample_day,y=lean_mass,group=photoperiod,color=photoperi
 ###### Day 1 #########
 
 
-dataL1=subset(data1,sample_day=="1")
-dataL1=subset(dataL1,lean_mass>="0")
-dataL1=subset(dataL1,lean_mass<="0.07")
+dataL1=subset(data,sample_day=="1")
+#dataL1=subset(dataL1,lean_mass>="0")
+#dataL1=subset(dataL1,lean_mass<="0.07")
 
-mixedd=lmer(lean_mass ~ photoperiod*strain + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mod=lm(lean_mass ~ photoperiod*strain, data=dataL1, REML = TRUE)
+
+
+anova(mod)
+step(mixed8)
+step(mixed9)
+
+
 mixed=lmer(lean_mass ~ photoperiod*strain + (1|rep/cohort) ,data=dataL1, REML = TRUE)
 mixedL2=lmer(lean_mass ~ photoperiod + (1|rep/cohort) ,data=dataL1, REML = TRUE)
 mixedL3=lmer(lean_mass ~ strain + (1|rep/cohort) ,data=dataL1, REML = TRUE)
@@ -150,7 +159,8 @@ mixedL4=lmer(lean_mass ~ (1|rep/cohort) ,data=dataL1, REML = TRUE)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lean mass, and the random effect of rep
 ## Photoperiod Does NOT SIGNIFICANTLY effect lean mass accumulation between larvae reared in long day vs short day conditions
-mixedL1=lmer(lean_mass ~ strain+photoperiod + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+mixedL1=lmer(lean_mass ~ strain*photoperiod + (1|rep/cohort) ,data=dataL1, REML = TRUE)
+step(mixedL1)
 summary(mixedL1)
 plot(mixedL1)
 ##The following model removes photoperiod as factors to determine the effect of lean mass and Rep on lean mass
@@ -208,10 +218,6 @@ mixedL6=lmer(lean_mass ~ photoperiod + (1|rep/cohort) ,data=dataLW, REML = TRUE)
 mixedL7=lmer(lean_mass ~ strain + (1|rep/cohort) ,data=dataLW, REML = TRUE)
 mixedL8=lmer(lean_mass ~ (1|rep/cohort) ,data=dataLW, REML = TRUE)
 #anova(mixedL5,mixedL6,mixedL7,mixedL8,mixed2)
-
-step(mixedd)
-step(mixed8)
-step(mixed9)
 
 ```
 

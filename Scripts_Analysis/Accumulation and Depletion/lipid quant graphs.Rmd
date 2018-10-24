@@ -72,6 +72,8 @@ ggplot(all, aes(x=wday,color=strain,group=strain))+
   ggtitle("Days to Wandering Stage")
 
 modtreat=lmer(wday~treat*strain+(1|cohort),all)
+step(modtreat)
+
 plot(modtreat)
 summary(modtreat)
 
