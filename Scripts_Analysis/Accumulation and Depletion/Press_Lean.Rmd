@@ -24,13 +24,13 @@ library(plyr)
 
 
 ##PC
-#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -89,12 +89,12 @@ dataLeU=subset(dataLeU,lean_mass>=0.0001)
 dataLeU=subset(dataLeU,lean_mass<=0.1000)
 count(dataLeU$treat)
 dataLeU=subset(dataLeU,sample_day=="1" | sample_day=="W")
-dataLeU=subset(dataLeU,photoperiod=="16")
+#dataLeU=subset(dataLeU,photoperiod=="16")
 ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
   stat_summary(fun.y=mean, geom="line")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   theme_classic()+
-  ylim(low=0.01, high=0.031)+
+  expand_limits(y=c(0.01,0.035))+
   scale_color_manual(values=c(UZ12="red",UZ16="red",BE12="blue",BE16="blue"))+
   ylab("Lean Mass")+xlab("")
 
@@ -144,11 +144,11 @@ dataL1=subset(data,sample_day=="1")
 #dataL1=subset(dataL1,lean_mass<="0.07")
 
 mod=lm(lean_mass ~ photoperiod*strain, data=dataL1, REML = TRUE)
+summary(mod)
 
-
-anova(mod)
-step(mixed8)
-step(mixed9)
+#anova(mod)
+#step(mixed8)
+#step(mixed9)
 
 
 mixed=lmer(lean_mass ~ photoperiod*strain + (1|rep/cohort) ,data=dataL1, REML = TRUE)

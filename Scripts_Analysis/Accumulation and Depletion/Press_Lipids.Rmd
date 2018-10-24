@@ -24,13 +24,13 @@ library(plyr)
 library(numDeriv)
 
 ##PC
-#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -83,6 +83,17 @@ datal=subset(datal,lean_mass>=0)
 datal=subset(datal,lean_mass<=0.0300)
 datal=subset(datal,sample_day=="1"| sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
 count(datal$treat)
+
+dataTr=subset(dataTr,traits=="lean_mass"|traits=="lipid_mass")
+dataTr=subset(dataTr,sample_day=="1")
+ggplot(data=dataTr,aes(x=strain,y=measurement,fill=traits))+
+  stat_summary(aes(y = measurement), fun.y=mean,geom="bar",position="dodge")+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05,position=position_dodge(0.95)) +
+  scale_fill_manual(values=c(lean_mass="red",lipid_mass="blue"))+
+  facet_wrap(~photoperiod)+
+  theme_classic()+
+  ggtitle("Treatment Comparison of Larvae lipid Mass")+
+  ylab("Mass (g)")
 ```
 ##Lipid Mass Comparison Between Treatments
 ```{r}
@@ -143,14 +154,6 @@ summary(submodL1)
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations  
 dataL1$stdresL1<-as.vector(scale(resid(submodL1)))
 
-ggplot(data=dataL1,aes(x=sample_day,y=lipid_mass,fill=strain))+
-  stat_summary(aes(y = lipid_mass), fun.y=mean,geom="bar",position="dodge")+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05,position=position_dodge(0.95)) +
-  scale_fill_manual(values=c(UZ="red",BE="blue"))+
-  facet_wrap(~photoperiod)+
-  theme_classic()+
-  ggtitle("Treatment Comparison of Larvae lipid Mass")+
-  ylab("lipid Mass")+xlab("Sample Day 1")
 
 
 
