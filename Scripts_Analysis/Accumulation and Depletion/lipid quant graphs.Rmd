@@ -32,14 +32,14 @@ library(doBy)
 
 
 ##PC
-#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "WANDER")
-data=subset(data,fifth_date!="NA")
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "WANDER")
+#data=subset(data,fifth_date!="NA")
 #fifth_date= <- species[match(unique(species$Taxa), species$Taxa),]
 
 #converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
@@ -66,12 +66,14 @@ all=subset(all,stage!="NA")
 ```{r}
 ggplot(all, aes(x=wday,color=strain,group=strain))+
   geom_density(alpha=.2,adjust=2)+
+  facet_wrap(~treat)+
   theme_classic()+
   scale_x_continuous(breaks = seq(0, 17, by=1), limits=c(0,17))+
   scale_fill_manual(values=c("BE"="blue","UZ"="red"))+
   ggtitle("Days to Wandering Stage")
 
-modtreat=lmer(wday~treat*strain+(1|cohort),all)
+modtreat=lmer(wday~treat*strain+(1|cohort),data=all,REML = TRUE)
+summary(modtreat)
 step(modtreat)
 
 plot(modtreat)
@@ -110,9 +112,6 @@ summary(mod16)
 modaov16=aov(all$wday~all$strain)
 summary(modaov16)
 ```
-
-
-
 ##UZ 0302 Wandering and Pupation tracking by day
 ```{r}
 ##############################
