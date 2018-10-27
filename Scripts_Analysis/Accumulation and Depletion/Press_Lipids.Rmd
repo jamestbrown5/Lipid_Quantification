@@ -24,13 +24,13 @@ library(plyr)
 library(numDeriv)
 
 ##PC
-data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -232,7 +232,7 @@ ggplot(data=dataWeD,aes(x=sample_day,y=lipid_mass,group=strain,color=strain))+
 dataWeDl=data1
 dataWeDl=subset(dataWeDl,photoperiod==12)
 dataWeDl=subset(dataWeDl,lipid_mass>=0)
-#dataWeDl=subset(dataWeDl,lipid_mass<=0.1000)
+dataWeDl=subset(dataWeDl,lipid_mass<=0.1000)
 count(dataWeDl$treat)
 dataWeDl=subset(dataWeDl,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
 dataWeBE=subset(dataWeDl,strain=="BE")
@@ -293,11 +293,12 @@ ggplot(data=dataWeD1,aes(x=sample_day,y=lipid_mass,color=treat))+
 
 ##Mixed model with 'rep' as a random factor
 
-dataWeDW=subset(data1,photoperiod==12)
+dataWeDW=subset(dataWeDl,photoperiod==12)
 dataWeDW=subset(dataWeDW,lipid_mass>=0)
-#dataWeDW=subset(dataWeDW,sample_day=="W")
+dataWeDW=subset(dataWeDW,sample_day=="W")
+count(dataWeDW$treat)
 
-mixed1=lmer(lipid_mass ~ strain*sample_day+lean_mass + (1|rep/cohort) ,data=dataWeDW, REML = TRUE)
+mixed1=lmer(lipid_mass ~ strain+lean_mass + (1|rep/cohort) ,data=dataWeDW, REML = TRUE)
 step(mixed1)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
@@ -329,8 +330,9 @@ ggplot(data=dataWeDW,aes(x=sample_day,y=lipid_mass,color=treat))+
 
 ##Mixed model with 'rep' as a random factor
 
-dataWeDW15=subset(data1,sample_day=="W15")
+dataWeDW15=subset(dataWeDl,sample_day=="W15")
 dataWeDW15=subset(dataWeDW15,lipid_mass>="0")
+count(dataWeDW15$treat)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
@@ -360,8 +362,9 @@ ggplot(data=dataWeDW15,aes(x=sample_day,y=lipid_mass,color=treat))+
 
 ##Mixed model with 'rep' as a random factor
 
-dataWeDW20=subset(data1,sample_day=="W20")
+dataWeDW20=subset(dataWeDl,sample_day=="W20")
 dataWeDW20=subset(dataWeDW20,lipid_mass>="0")
+count(dataWeDW20$treat)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
@@ -392,8 +395,9 @@ ggplot(data=dataWeDW20,aes(x=sample_day,y=lipid_mass,color=treat))+
 
 ##Mixed model with 'rep' as a random factor
 
-dataWeDW30=subset(data1,sample_day=="W30")
+dataWeDW30=subset(dataWeDl,sample_day=="W30")
 dataWeDW30=subset(dataWeDW30,lipid_mass>="0")
+count(dataWeDW30$treat)
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Photoperiod does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
