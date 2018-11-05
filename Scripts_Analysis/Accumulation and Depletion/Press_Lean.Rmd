@@ -24,13 +24,13 @@ library(plyr)
 
 
 ##PC
-data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -93,7 +93,7 @@ dataLeU=subset(dataLeU,sample_day=="1" | sample_day=="W")
 ggplot(data=dataLeU,aes(x=sample_day,y=lean_mass,color=treat,group=treat))+
   stat_summary(fun.y=mean, geom="line")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
-  theme_classic()+
+  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
   expand_limits(y=c(0.01,0.035))+
   scale_color_manual(values=c(UZ12="red",UZ16="red",BE12="blue",BE16="blue"))+
   ylab("Lean Mass")+xlab("")
@@ -272,7 +272,7 @@ ggplot(data=dataLeDl,aes(x=sample_day,y=lean_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line",shape=18)+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   scale_color_manual(values=c(UZ12="red",UZ16="red",BE12="blue",BE16="blue"))+
-  theme_classic()+
+  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
   ggtitle("Diapause: Between Strain Comparison of Larvae lean Mass (UZ 117 : BE 107 larvae)")+
   ylab("lean Mass")+xlab("Sample Day")
 

@@ -107,8 +107,8 @@ dataLipid=subset(dataLipid,sample_day=="1"| sample_day=="W")
 ggplot(data=dataLipid,aes(x=sample_day,y=lipid_mass,group=treat,color=strain))+
   stat_summary(aes(y = lipid_mass), fun.y=mean, geom="line")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05)+
-  scale_color_manual(values=c(UZ="red",BE="darkblue"))+
-  theme_classic()+
+  scale_color_manual(values=c(UZ="purple",BE="orange"))+
+  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
   ggtitle("Treatment Comparison of Larvae lipid Mass (UZ 178 : BE 164 larvae)")+
   ylab("lipid Mass")+xlab("Sample Day")
 
@@ -242,7 +242,7 @@ ggplot(data=dataWeDl,aes(x=sample_day,y=lipid_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line",shape=18)+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
-  theme_classic()+
+  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
   ggtitle("Diapause: Between Strain Comparison of Larvae lipid Mass (UZ 117 : BE 107 larvae)")+
   ylab("lipid Mass")+xlab("Sample Day")
 
