@@ -296,6 +296,7 @@ count(dataWeDW30$treat)
 
 ## Model Selection
 ```{r}
+
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 mixedL1=lmer(tag_mass ~ photoperiod*strain+lean_mass+lipid_mass + (1|rep/cohort) ,data=dataL1, REML = TRUE)
 summary(mixedL1)
