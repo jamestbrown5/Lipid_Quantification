@@ -26,13 +26,13 @@ library(plyr)
 library(numDeriv)
 
 ##PC
-#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
+data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "CONTSAMPdf")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
+#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "CONTSAMPdf")
 
 data=subset(data,treat!="NA")
 data=subset(data,cohort!="20180131")
@@ -50,9 +50,11 @@ data$photoperiod<-as.factor(as.character(data$photoperiod))
 data$treat<-as.factor(as.character(data$treat))
 data$sample_day<-factor(data$sample_day, levels=c("1" , "3" , "7" , "W" , "pW1" , "pW5" , "pW10" , "W14" ,"W15" , "pW18" , "W19" , "W20" , "W29" , "W30" , "pW38" , "W45"))
 data$cohort<-as.factor(as.character(data$cohort))
+data$batch<-as.factor(as.character(data$batch))
+str(data)
 
 #Reducing df
-data1=data[1:626, c("sample_day","rep","treat","sample_id","5th_date","cohort", "wet_mass","dry_mass","lean_mass","lipid_mass","tag_mass","strain","photoperiod")]
+data1=data[1:626, c("sample_day","rep","treat","sample_id","5th_date","cohort", "wet_mass","dry_mass","lean_mass","lipid_mass","tag_mass","batch","strain","photoperiod")]
 #data1=subset(data1,tag_mass<=0.0200)
 #converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
 dataT=gather(data,traits,measurement,wet_mass:tag_mass)
@@ -87,29 +89,50 @@ count(datal$treat)
 #visuals
 dataTr=subset(dataTr,traits=="tag_mass")
 #dataTr=subset(dataTr,sample_day=="1")
-ggplot(data=dataTr,aes(x=strain,y=measurement,fill=traits))+
+ggplot(data=dataTr,aes(x=strain,y=measurement,fill=strain))+
   stat_summary(aes(y = measurement), fun.y=mean,geom="bar",position="dodge")+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05,position=position_dodge(0.95)) +
-  scale_fill_manual(values=c(tag_mass="red"))+
+  scale_fill_manual(values=c(BE="orange",UZ="purple"))+
   facet_wrap(~photoperiod)+
   theme_classic()+
   ggtitle("Treatment Comparison of Larvae TAG Mass")+
   ylab("Mass (g)")
 
-### Significance
 
 ```
 
 
-## Accumulation of TAG Mass Comparison Between Strains & Treatments
+## Accumulation of TAG Mass Compared Between Strains & Between Treatments
 ```{r}
+#######################
+#Larva lipid Mass Plot#
+# Between Strains   ###
+# Within  Treatments  #
+#######################
+ 
+### Diapause Programmed###
+dataWeD=data1
+dataWeD=subset(dataWeD,photoperiod==12)
+dataWeD=subset(dataWeD,tag_mass>=0)
+dataWeD=subset(dataWeD,tag_mass<=0.0060)
+count(dataWeD$treat)
+dataWeD=subset(dataWeD,sample_day=="1"| sample_day=="W")
+
+ggplot(data=dataWeD,aes(x=sample_day,y=tag_mass,group=strain,color=strain))+
+  stat_summary(aes(y = tag_mass), fun.y=mean, geom="line")+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05)+
+  scale_color_manual(values=c(UZ="purple",BE="orange"))+
+  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
+  ggtitle("TAG Accumulation: BE vs UZ Diapause Programming")+
+  ylab("Triglyceride Mass")+xlab("Sample Day")
+
 #######################
 #Larva lipid Mass Plot#
 # Between Treatments  #
 # Between    Strains  #
 #######################
 
-#Larva TAG Mass Comparison Between Treatments
+#Diapause and Non Diapause
 dataLipid=data1
 dataLipid=subset(dataLipid,tag_mass>=0)
 dataLipid=subset(dataLipid,tag_mass<=0.0060)
@@ -121,7 +144,29 @@ ggplot(data=dataLipid,aes(x=sample_day,y=tag_mass,group=treat,color=strain))+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05)+
   scale_color_manual(values=c(UZ="purple",BE="orange"))+
   theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
-  ggtitle("Treatment Comparison of Larvae lipid Mass (UZ 172 : BE 158 larvae)")+
+  ggtitle("TAG Accumulation: BE vs UZ between treatments")+
+  ylab("Triglyceride Mass")+xlab("Sample Day")
+
+#######################
+#Larva lipid Mass Plot#
+# Between Strains   ###
+# Within  Treatments  #
+#######################
+
+### Non Diapause Program###
+dataWeND=data1
+dataWeND=subset(dataWeND,photoperiod==16)
+dataWeND=subset(dataWeND,tag_mass>=0)
+dataWeND=subset(dataWeND,tag_mass<=0.0060)
+count(dataWeND$treat)
+dataWeND=subset(dataWeND,sample_day=="1"| sample_day=="W")
+
+ggplot(data=dataWeND,aes(x=sample_day,y=tag_mass,group=strain,color=strain))+
+  stat_summary(aes(y = tag_mass), fun.y=mean, geom="line")+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05)+
+  scale_color_manual(values=c(UZ="purple",BE="orange"))+
+  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
+  ggtitle("TAG Accumulation: BE vs UZ Non-Diapause")+
   ylab("Triglyceride Mass")+xlab("Sample Day")
 
 ######################
@@ -141,49 +186,10 @@ dataL1=subset(dataL1,tag_mass<="0.0060")
 dataLW=subset(data,sample_day=="W")
 dataLW=subset(dataLW,tag_mass>="0")
 #dataLW=subset(dataLW,tag_mass<="0.07")
+```
 
-#######################
-#Larva lipid Mass Plot#
-# Within  Treatments  #
-#######################
- 
-### Diapause Programmed###
-dataWeD=data1
-dataWeD=subset(dataWeD,photoperiod==12)
-dataWeD=subset(dataWeD,tag_mass>=0)
-dataWeD=subset(dataWeD,tag_mass<=0.0060)
-count(dataWeD$treat)
-dataWeD=subset(dataWeD,sample_day=="1"| sample_day=="W")
-
-ggplot(data=dataWeD,aes(x=sample_day,y=tag_mass,group=strain,color=strain))+
-  stat_summary(aes(y = tag_mass), fun.y=mean, geom="line")+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05)+
-  scale_color_manual(values=c(UZ="purple",BE="orange"))+
-  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
-  ggtitle("Treatment Comparison of Larvae lipid Mass (UZ 178 : BE 164 larvae)")+
-  ylab("Triglyceride Mass")+xlab("Sample Day")
-
-######################
-#Larva lipid Mass Plot#
-# Within   Treatment #
-######################
-
-### Non Diapause Program###
-dataWeND=data1
-dataWeND=subset(dataWeND,photoperiod==16)
-dataWeND=subset(dataWeND,tag_mass>=0)
-dataWeND=subset(dataWeND,tag_mass<=0.0060)
-count(dataWeND$treat)
-dataWeND=subset(dataWeND,sample_day=="1"| sample_day=="W")
-
-ggplot(data=dataWeND,aes(x=sample_day,y=tag_mass,group=strain,color=strain))+
-  stat_summary(aes(y = tag_mass), fun.y=mean, geom="line")+
-  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05)+
-  scale_color_manual(values=c(UZ="purple",BE="orange"))+
-  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
-  ggtitle("Treatment Comparison of Larvae lipid Mass (UZ 178 : BE 164 larvae)")+
-  ylab("Triglyceride Mass")+xlab("Sample Day")
-
+## TAG Accumulation within Strain compared between treatments
+```{r}
 ######################
 # Larva lipid Mass   #
 # Within Strain      #
@@ -232,13 +238,13 @@ ggplot(data=dataWeBE,aes(x=sample_day,y=tag_mass,group=treat,color=treat))+
 dataWeDl=data1
 dataWeDl=subset(dataWeDl,photoperiod==12)
 dataWeDl=subset(dataWeDl,tag_mass>=0)
-dataWeDl=subset(dataWeDl,tag_mass<=0.0200)
 count(dataWeDl$treat)
 dataWeDl=subset(dataWeDl,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
 dataWeBE=subset(dataWeDl,strain=="BE")
 dataWeUZ=subset(dataWeDl,strain=="UZ")
 
-ggplot(data=dataWeDl,aes(x=sample_day,y=tag_mass,group=treat,color=treat))+
+#dataWeDl1=subset(dataWeDl,tag_mass<=0.0200)
+ggplot(data=dataWeDl1,aes(x=sample_day,y=tag_mass,group=treat,color=treat))+
   stat_summary(fun.y=mean, geom="line",shape=18)+
   stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
   scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
@@ -251,7 +257,79 @@ ggplot(data=dataWeDl,aes(x=sample_day,y=tag_mass,group=treat,color=treat))+
 # Between Strains ####
 # Within  Treatments #
 ###### Day 1 #########
-dataWeD1=subset(data1,photoperiod==12)
+dataWeDay1=subset(data1,photoperiod==12)
+dataWeDay1=subset(dataWeDay1,tag_mass>=0)
+dataWeDay1=subset(dataWeDay1,sample_day=="1")
+count(dataWeDay1$treat)
+
+######################
+# Larva Lipid Mass    #
+# Between Strains ####
+# Within  Treatments #
+###### Day W #########
+dataWeDayW=subset(dataWeDl,photoperiod==12)
+dataWeDayW=subset(dataWeDayW,tag_mass>=0)
+dataWeDayW=subset(dataWeDayW,sample_day=="W")
+count(dataWeDayW$treat)
+
+######################
+# Larva Lipid Mass   #
+# Between Strains ####
+# Within  Treatments #
+###### Day W15 #######
+dataWeDayW15=subset(dataWeDl,sample_day=="W15")
+dataWeDayW15=subset(dataWeDayW15,tag_mass>="0")
+count(dataWeDayW15$treat)
+
+######################
+# Larva Lipid Mass   #
+# Between Strains ####
+# Within  Treatments #
+###### Day w20 #######
+dataWeDayW20=subset(dataWeDl,sample_day=="W20")
+dataWeDayW20=subset(dataWeDayW20,tag_mass>="0")
+count(dataWeDayW20$treat)
+
+######################
+# Larva Lipid Mass   #
+# Between Strains ####
+# Within  Treatments #
+###### Day w30 #######
+dataWeDayW30=subset(dataWeDl,sample_day=="W30")
+dataWeDayW30=subset(dataWeDayW30,tag_mass>="0")
+count(dataWeDayW30$treat)
+```
+## Depletion of TAG mass Compared Within UZ strain
+```{r}
+######################
+# Larva Lipid Mass   #
+# Within Strain   ####
+# Within  Treatments #
+######################
+
+dataWeDl=data1
+dataWeDl=subset(dataWeDl,photoperiod==12)
+dataWeDl=subset(dataWeDl,tag_mass>=0)
+count(dataWeDl$treat)
+dataWeDl=subset(dataWeDl,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+dataWeBE=subset(dataWeDl,strain=="BE")
+dataWeUZ=subset(dataWeDl,strain=="UZ")
+
+dataWeUZ1=subset(dataWeUZ,tag_mass<=0.0200)
+ggplot(data=dataWeUZ1,aes(x=sample_day,y=tag_mass,group=treat,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
+  ggtitle("Diapause: Between Strain Comparison of Larvae lipid Mass (UZ 117 : BE 107 larvae)")+
+  ylab("lipid Mass")+xlab("Sample Day")
+
+######################
+# Larva Lipid Mass   #
+# Within Strain   ####
+# Within  Treatments #
+###### Day 1 #########
+dataWeD1=subset(dataWeUZ,photoperiod==12)
 dataWeD1=subset(dataWeD1,tag_mass>=0)
 dataWeD1=subset(dataWeD1,sample_day=="1")
 count(dataWeD1$treat)
@@ -261,7 +339,7 @@ count(dataWeD1$treat)
 # Between Strains ####
 # Within  Treatments #
 ###### Day W #########
-dataWeDW=subset(dataWeDl,photoperiod==12)
+dataWeDW=subset(dataWeUZ,photoperiod==12)
 dataWeDW=subset(dataWeDW,tag_mass>=0)
 dataWeDW=subset(dataWeDW,sample_day=="W")
 count(dataWeDW$treat)
@@ -271,7 +349,7 @@ count(dataWeDW$treat)
 # Between Strains ####
 # Within  Treatments #
 ###### Day W15 #######
-dataWeDW15=subset(dataWeDl,sample_day=="W15")
+dataWeDW15=subset(dataWeUZ,sample_day=="W15")
 dataWeDW15=subset(dataWeDW15,tag_mass>="0")
 count(dataWeDW15$treat)
 
@@ -280,7 +358,7 @@ count(dataWeDW15$treat)
 # Between Strains ####
 # Within  Treatments #
 ###### Day w20 #######
-dataWeDW20=subset(dataWeDl,sample_day=="W20")
+dataWeDW20=subset(dataWeUZ,sample_day=="W20")
 dataWeDW20=subset(dataWeDW20,tag_mass>="0")
 count(dataWeDW20$treat)
 
@@ -289,21 +367,131 @@ count(dataWeDW20$treat)
 # Between Strains ####
 # Within  Treatments #
 ###### Day w30 #######
-dataWeDW30=subset(dataWeDl,sample_day=="W30")
+dataWeDW30=subset(dataWeUZ,sample_day=="W30")
+dataWeDW30=subset(dataWeDW30,tag_mass>="0")
+count(dataWeDW30$treat)
+```
+
+## Depletion of TAG mass Compared Within BE strain
+```{r}
+######################
+# Larva Lipid Mass   #
+# Within Strain   ####
+# Within  Treatments #
+######################
+
+dataWeDl=data1
+dataWeDl=subset(dataWeDl,photoperiod==12)
+dataWeDl=subset(dataWeDl,tag_mass>=0)
+count(dataWeDl$treat)
+dataWeDl=subset(dataWeDl,sample_day=="W"| sample_day=="W15"| sample_day=="W20" | sample_day=="W30")
+dataWeBE=subset(dataWeDl,strain=="BE")
+dataWeUZ=subset(dataWeDl,strain=="UZ")
+
+dataWeBE1=subset(dataWeBE,tag_mass<=0.0200)
+ggplot(data=dataWeBE1,aes(x=sample_day,y=tag_mass,group=treat,color=treat))+
+  stat_summary(fun.y=mean, geom="line",shape=18)+
+  stat_summary(fun.data=mean_se, geom="errorbar", width=0.05) +
+  scale_color_manual(values=c(UZ12="purple",UZ16="purple",BE12="orange",BE16="orange"))+
+  theme(axis.text.x  = element_text(vjust=0.5, size=16),axis.text.y  = element_text(vjust=0.5, size=16))+
+  ggtitle("Diapause: Between Strain Comparison of Larvae lipid Mass (UZ 117 : BE 107 larvae)")+
+  ylab("lipid Mass")+xlab("Sample Day")
+
+######################
+# Larva Lipid Mass   #
+# Within Strain   ####
+# Within  Treatments #
+###### Day 1 #########
+dataWeD1=subset(dataWeBE,photoperiod==12)
+dataWeD1=subset(dataWeD1,tag_mass>=0)
+dataWeD1=subset(dataWeD1,sample_day=="1")
+count(dataWeD1$treat)
+
+######################
+# Larva Lipid Mass    #
+# Between Strains ####
+# Within  Treatments #
+###### Day W #########
+dataWeDW=subset(dataWeBE,photoperiod==12)
+dataWeDW=subset(dataWeDW,tag_mass>=0)
+dataWeDW=subset(dataWeDW,sample_day=="W")
+count(dataWeDW$treat)
+
+######################
+# Larva Lipid Mass   #
+# Between Strains ####
+# Within  Treatments #
+###### Day W15 #######
+dataWeDW15=subset(dataWeBE,sample_day=="W15")
+dataWeDW15=subset(dataWeDW15,tag_mass>="0")
+count(dataWeDW15$treat)
+
+######################
+# Larva Lipid Mass   #
+# Between Strains ####
+# Within  Treatments #
+###### Day w20 #######
+dataWeDW20=subset(dataWeBE,sample_day=="W20")
+dataWeDW20=subset(dataWeDW20,tag_mass>="0")
+count(dataWeDW20$treat)
+
+######################
+# Larva Lipid Mass   #
+# Between Strains ####
+# Within  Treatments #
+###### Day w30 #######
+dataWeDW30=subset(dataWeBE,sample_day=="W30")
 dataWeDW30=subset(dataWeDW30,tag_mass>="0")
 count(dataWeDW30$treat)
 ```
 
 ## Model Selection
 ```{r}
+## STRAINS & TREATMENTS
+## Full model analysis to find significant variables
+## This code test the significance of each explanatory variable and its ability to explain the response variable
+mixedL1=lmer(tag_mass ~ photoperiod*strain+lean_mass+lipid_mass+ (1|batch/rep/cohort),data=dataL1, REML = TRUE)
+mixedLW=lmer(tag_mass ~ photoperiod*strain+lean_mass+lipid_mass+ (1|batch/rep/cohort) ,data=dataLW, REML = TRUE)
+
+step(mixedL1)
+step(mixedLW)
+
+
+## Reduced model to analyze the significance of each significant variable to explain the response
+modD1=lmer(tag_mass ~ (1|batch),data=dataL1, REML = TRUE)
+modDW=lmer(tag_mass ~ photoperiod+lipid_mass+ (1|batch),data=dataLW, REML = TRUE)
+
+step(mixedL1)
+summary(modD1)
+step(mixedLW)
+summary(modDW)
+
+
+##TAG Depletion
+moh=lmer(formula = tag_mass ~ strain + sample_day + (1 | batch/rep/cohort), data =dataWeDl, REML = TRUE)
+mof=lmer(formula = tag_mass ~ sample_day + (1 | batch/rep/cohort), data =dataWeBE, REML = TRUE)
+mog=lmer(formula = tag_mass ~ sample_day + (1 | batch/rep/cohort), data =dataWeUZ, REML = TRUE)
+step(moh)
+step(mof)
+step(mog)
+
+mohdeple=lmer(formula = tag_mass ~ strain + (1 | rep:batch), data =dataWeDl, REML = TRUE)
+mofBE=lmer(formula = tag_mass ~ sample_day + (1 | batch), data =dataWeBE, REML = TRUE)
+mogUZ=lmer(formula = tag_mass ~ (1 | rep:batch), data =dataWeUZ, REML = TRUE)
+
+step(moh)
+summary(mohdeple)
+step(mof)
+summary(mofBE)
+step(mog)
+summary(mogUZ)
+
+
+#############
 
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
-mixedL1=lmer(tag_mass ~ photoperiod*strain+lean_mass+lipid_mass + (1|rep/cohort) ,data=dataL1, REML = TRUE)
-summary(mixedL1)
-mixedLW=lmer(tag_mass ~ photoperiod*strain+lean_mass+lipid_mass + (1|rep/cohort) ,data=dataLW, REML = TRUE)
-mixedDW=lmer(tag_mass ~ strain+lean_mass+lipid_mass + (1|rep/cohort) ,data=dataWeDW, REML = TRUE)
-
+mixedL5=lmer(tag_mass ~  strain+lean_mass+lipid_mass + (1|rep/cohort) ,data=dataLW, REML = TRUE)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
 submodL1=lmer(tag_mass ~ strain+lean_mass+lipid_mass + (1|rep/cohort) ,data=dataL1, REML = TRUE)
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations
@@ -311,11 +499,8 @@ dataL1$stdresL1<-as.vector(scale(resid(submodL1)))
 
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 mixedL5=lmer(tag_mass ~  strain+lean_mass+lipid_mass + (1|rep/cohort) ,data=dataLW, REML = TRUE)
-summary(mixedL5)
-plot(mixedL5)
 ##The following model removes photoperiod as factors to determine the effect of lipid mass and Rep on lipid mass
 submodL5=lmer(tag_mass ~ (1|rep/cohort),data=dataLW, REML = TRUE)
-summary(submodL5)
 ## Standard Residuals -  Adding stdres to df and checking for regularity of distribution within +/-2 standard deviations
 dataLW$stdresLW<-as.vector(scale(resid(submodL5)))
 
@@ -326,19 +511,6 @@ plot(mixedWeDW)
 submodLeDW=lmer(tag_mass ~ (1|rep/cohort),data=dataWeDW, REML = TRUE)
 summary(submodLeDW)
 dataWeDW$stdresLeDW<-as.vector(scale(resid(submodLeDW)))
-
-#step(mixedL1)
-step(mixedL5)
-step(mixedDW)
-
-##TAG Depletion
-moh=lmer(formula = tag_mass ~ strain + sample_day + (1 | rep/cohort), data =dataWeDl, REML = TRUE)
-mof=lmer(formula = tag_mass ~ sample_day + (1 | rep/cohort), data =dataWeBE, REML = TRUE)
-mog=lmer(formula = tag_mass ~ sample_day + (1 | rep/cohort), data =dataWeUZ, REML = TRUE)
-summary(moh)
-summary(mof)
-summary(mog)
-
 #this model attempts to fit the linear mixed effects model with 3 variables; photoperiod, lipid mass, and the random effect of rep
 ## Strain does SIGNIFICANTLY effect lipid mass accumulation between larvae reared in long day vs short day conditions
 mixedWeD1=lmer(tag_mass ~  strain + lean_mass + (1|rep/cohort),data=dataWeD1, REML = TRUE)
