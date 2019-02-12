@@ -21,7 +21,7 @@ library(doBy)
 library(plyr)
 
 ##PC
-wander=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
+#wander=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
 ```
 
 ```{r}

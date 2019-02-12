@@ -72,14 +72,15 @@ ggplot(all, aes(x=wday,color=strain,group=strain))+
   scale_fill_manual(values=c("BE"="blue","UZ"="red"))+
   ggtitle("Days to Wandering Stage")
 
+summary(all)
 modtreat=lmer(wday~treat*strain+(1|cohort),data=all,REML = TRUE)
 summary(modtreat)
 step(modtreat)
-
 plot(modtreat)
 summary(modtreat)
 
 all12=subset(all,treat==12)
+summary(all12)
 ggplot(all12, aes(x=wday,fill=strain))+
   geom_density(alpha=.3,adjust=2.5)+
   xlab("Days in 5th Instar")+
@@ -97,7 +98,8 @@ summary(modaov12)
 
 
 all16=subset(all,treat==16)
-ggplot(all, aes(x=strain,y=wday))+
+summary(all16)
+  ggplot(all, aes(x=strain,y=wday))+
   stat_summary(aes(y = wday), fun.y=mean, geom="point", position="dodge",size=4)+
   stat_summary(fun.y=median, fun.ymin=function(x) median(x) - sd(x), 
                fun.ymax=function(x) median(x) + sd(x), geom="errorbar",position="dodge", width=0.1) +
@@ -106,11 +108,14 @@ ggplot(all, aes(x=strain,y=wday))+
   theme_classic()+
   ggtitle("Non Diapause Conditions: Days to Wandering Stage")
 
-mod16=lmer(wday~strain*treat+(1|cohort),all)
-plot(mod16)
+mod16=lmer(wday~strain+(1|cohort),all16)
+summary(all16)
 summary(mod16)
-modaov16=aov(all$wday~all$strain)
-summary(modaov16)
+
+mod12=lmer(wday~strain+(1|cohort),all12)
+summary(all12)
+summary(mod12)
+
 ```
 ##UZ 0302 Wandering and Pupation tracking by day
 ```{r}
