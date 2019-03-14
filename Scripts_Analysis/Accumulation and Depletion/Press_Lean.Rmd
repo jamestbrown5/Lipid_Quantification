@@ -454,7 +454,7 @@ ggplot(data=dataLeDW30,aes(x=sample_day,y=lean_mass,color=treat))+
 
 dataLeDU=subset(dataLeDl,strain=="UZ")
 dataLeDU=subset(dataLeDU,photoperiod!="16")
-mF=lm(lean~sample_day,data=dataLeDU)
+mF=lm(lean_mass~sample_day,data=dataLeDU)
 summary(mF)
 ```
 
