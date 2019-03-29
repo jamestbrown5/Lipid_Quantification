@@ -198,7 +198,7 @@ anova(mixedL5,mixedL6,mixedL7,mixedL8,mixed2)
 
 step(mixedL1)
 step(mixedL5)
-step(mixed1)
+#step(mixed1)
 ```
 
 ##Lipid Mass Comparison Within Diapause Treatment and Between UZ12 and BE12 
