@@ -32,14 +32,14 @@ library(doBy)
 
 
 ##PC
-data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
+#data=read_excel("/Users/jbrown/Documents/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx",sheet = "WANDER")
 
 
 ##MAC
 ## reading in the data and looking at its structure
-#setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
-#data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "WANDER")
-#data=subset(data,fifth_date!="NA")
+setwd("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Scripts_Analysis")
+data=read_excel("/Users/JamesB/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/Extraction Samples JLM.xlsx", sheet = "WANDER")
+data=subset(data,fifth_date!="NA")
 #fifth_date= <- species[match(unique(species$Taxa), species$Taxa),]
 
 #converting wide to long. This code puts all the observations into one column with the label of your choice (measurements used below)
@@ -64,6 +64,7 @@ all=subset(all,stage!="NA")
 
 ##Distribution plots of larvae in the 5th instar by the amount of days it takes to reach the wandering stage with Linear Mixed Model analysis
 ```{r}
+View(all)
 ggplot(all, aes(x=wday,color=strain,group=strain))+
   geom_density(alpha=.2,adjust=2)+
   facet_wrap(~treat)+
