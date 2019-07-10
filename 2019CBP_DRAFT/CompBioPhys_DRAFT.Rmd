@@ -3,6 +3,8 @@ title: "TAG classes Initial Plots and Analysis"
 author: "James Brown"
 date: "7/10/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -15,16 +17,27 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r Packages and Libraries}
+library(readxl)
+library(ggplot2)
+library(nlme)
+library(lme4)
+library(lmerTest)
+library(ez)
+library(lsr)
+library(dplyr)
+library(tidyr)
+library(MASS)
+library(doBy)
+library(plyr)
+library(numDeriv)
 ```
 
-## Including Plots
+```{r Calling and Preparing data}
+setwd("~/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/LC Results")
+data=read.csv("20180403_BATCH01.csv")
+View(data)
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
