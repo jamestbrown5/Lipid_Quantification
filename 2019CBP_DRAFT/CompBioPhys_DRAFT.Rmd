@@ -34,9 +34,10 @@ library(numDeriv)
 ```
 
 ```{r Calling and Preparing data}
-setwd("~/Google Drive/Graduate School/Self_JamesTBrown/GitHub/Lipid_Quantification/Data/LC Results")
-data=read.csv("20180403_BATCH01.csv")
-View(data)
+
+
+# Step 1: Combine all raw dataframes exported from LC data analysis into a single sheet
+
 
 ```
 

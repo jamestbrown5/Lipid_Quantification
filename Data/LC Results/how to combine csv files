@@ -1,0 +1,16 @@
+Step 1: navigate to folder containing only the .csv files you would like to merge
+Step 2: type everything inside the quote marks:
+	"cat *.csv>newfilename.csv
+Step 3: Check the new file for errors
+
+
+For example:
+(base) James-Brown:~ JamesB$ cd Google\ Drive
+(base) James-Brown:Google Drive JamesB$ cd Graduate\ School/
+(base) James-Brown:Graduate School JamesB$ cd Self_JamesTBrown/
+(base) James-Brown:Self_JamesTBrown JamesB$ cd GitHub/
+(base) James-Brown:GitHub JamesB$ cd Lipid_Quantification/
+(base) James-Brown:Lipid_Quantification JamesB$ cd Data
+(base) James-Brown:Data JamesB$ cd LC\ Results/
+(base) James-Brown:LC Results JamesB$ cat *.csv>lc_tags.csv
+(base) James-Brown:LC Results JamesB$ 
