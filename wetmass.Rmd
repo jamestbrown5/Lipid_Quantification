@@ -1,0 +1,145 @@
+---
+title: "wet mass stats"
+author: "Brown, JT"
+date: "July 15, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(nlme)
+library(lme4)
+library(lmerTest)
+library(ez)
+library(lsr)
+library(dplyr)
+library(tidyr)
+library(MASS)
+library(doBy)
+library(plyr)
+```
+
+```{r}
+
+data=read_excel("/Users/jbrown/Documents/GitHub/Respirometry/Data/Respir.xlsx", sheet="Sheet1")
+
+############## Data Prep ###################
+data=subset(data, VCO2!="NA") # Remove NAs from df
+data=subset(data, mass!="NA")
+data=subset(data, syringe!="Blank Control") #Removing "Blank Control" syringes
+data$syringe=as.character(data$syringe) #Set "syringe" as a character
+data$strain<-as.factor(data$strain) #set strain as ind var
+data$treat<-as.factor(data$treat) #set treat as factor as ind var
+data$stage<-as.factor(data$stage)
+dataBEUZmass=subset(data, stage=="L")
+dataBEUZmass=subset(dataBEUZmass, stage!="P")
+dataBEUZmass=subset(dataBEUZmass,Tray!="12,23 1201-01")
+dataBEUZmass=subset(dataBEUZmass,Tray!="12,23 1201-02")
+dataBEUZmass=subset(dataBEUZmass,Tray!="16,23 1202")
+dataBEUZmass=subset(dataBEUZmass,Tray!="16,23 1201")
+dataBEUZmass12=subset(dataBEUZmass, treat=="1")
+dataBEUZmass16=subset(dataBEUZmass, treat=="2")
+dataUZvUZ=subset(dataBEUZmass, strain=="UZ")
+dataBEvBE=subset(dataBEUZmass, strain=="BE")
+datamass16be=subset(dataBEUZmass16,strain=="BE")
+datamass16uz=subset(dataBEUZmass16,strain=="UZ")
+datamass12uz=subset(dataBEUZmass12,strain=="UZ")
+datamass12be=subset(dataBEUZmass12,strain=="BE")
+#############################################
+#UZ16
+#View(datamass16uz)
+datamass16uz<-datamass16uz[-32,]
+
+datamass16uz$predmax<-predict(loess(mass~day,datamass16uz))
+max(datamass16uz$predmax)
+summary(datamass16uz)
+
+datamass16uz%>%
+  dplyr::filter(predmax==0.11237042)
+
+test<-data.frame(x=datamass16uz$day,y=datamass16uz$predmax)
+
+test%>%
+  dplyr::filter(y==0.11237042)
+  #dplyr::summarise(max=max(predmax))%>%
+
+#day 5
+ggplot(test,aes(x,y))+geom_line()+geom_point()+stat_smooth(forumla=y~x^2)
+summary(lm(y~x+I(x^2),test))
+
+#UZ12
+#View(datamass12uz)
+datamass12uz<-datamass12uz
+
+datamass12uz$predmax<-predict(loess(mass~day,datamass12uz))
+max(datamass12uz$predmax)
+summary(datamass12uz)
+
+datamass12uz%>%
+  dplyr::filter(predmax==0.11278569)
+
+test<-data.frame(x=datamass12uz$day,y=datamass12uz$predmax)
+
+test%>%
+  dplyr::filter(y==0.11278569)
+  #dplyr::summarise(max=max(predmax))%>%
+
+#day 10
+ggplot(test,aes(x,y))+geom_line()+geom_point()+stat_smooth(forumla=y~x^2)
+summary(lm(y~x+I(x^2),test))
+
+#BE16
+#View(datamass16be)
+datamass16be<-datamass16be
+
+datamass16be$predmax<-predict(loess(mass~day,datamass16be))
+max(datamass16be$predmax)
+summary(datamass16be)
+
+datamass16be%>%
+  dplyr::filter(predmax==0.08872000)
+
+test<-data.frame(x=datamass16be$day,y=datamass16be$predmax)
+
+test%>%
+  dplyr::filter(y==0.08872000)
+  #dplyr::summarise(max=max(predmax))%>%
+
+#day 3
+ggplot(test,aes(x,y))+geom_line()+geom_point()+stat_smooth(forumla=y~x^2)
+summary(lm(y~x+I(x^2),test))
+
+#be12
+#View(datamass12be)
+datamass12be<-datamass12be
+
+datamass12be$predmax<-predict(loess(mass~day,datamass12be))
+max(datamass12be$predmax)
+summary(datamass12be)
+
+datamass12be%>%
+  dplyr::filter(predmax==0.09129416)
+
+test<-data.frame(x=datamass12be$day,y=datamass12be$predmax)
+
+test%>%
+  dplyr::filter(y==0.09129416)
+  #dplyr::summarise(max=max(predmax))%>%
+
+#day 8
+ggplot(test,aes(x,y))+geom_line()+geom_point()+stat_smooth(forumla=y~x^2)
+summary(lm(y~x+I(x^2),test))
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
